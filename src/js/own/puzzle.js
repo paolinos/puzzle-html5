@@ -471,7 +471,7 @@
     }
 
     /*
-     *  
+     *  Check collision and movement
      */
     var __checkMovement = function(obj){
       var tmpCol1 = null;
@@ -563,20 +563,16 @@
             //	Check Game End
             if( puzzleObject.groups[tmpObj.group].length >= (puzzleObject.horizontalPieces * puzzleObject.verticalPieces) ){
               //console.log("Game Over!!!");
-              //TODO: DELETE this
-              //CallService(function(ev){},3);
 
               tipe = 3;
               rendereableObj.gameContainer.removeAllChildren();
+
               var tmpImg = new createjs.Bitmap( imageObj );
               rendereableObj.gameContainer.addChild(tmpImg);
+
               startTime = new Date().getTime();
               stage.update();
             }
-          }else{
-            /*if(scaleEnable){
-              tmpObj.scaleX = obj.scaleY = minScale;
-            }*/
           }
         }
       }

@@ -154,13 +154,16 @@
       }
     }
 
+		var __setInitValues = function(horizontal,vertical){
+			// Hardcode values
+      puzzleObject.horizontalPieces = horizontal;
+      puzzleObject.verticalPieces = vertical;
+		}
+
     /*
      * Initialize Game and settings
      */
     var __initGame = function(){
-      // Hardcode values
-      puzzleObject.horizontalPieces = 4;
-      puzzleObject.verticalPieces = 3;
       puzzleObject.pieceWidth = imageObj.width / puzzleObject.horizontalPieces;
       puzzleObject.pieceHeight = imageObj.height / puzzleObject.verticalPieces;
       puzzleObject.piecesArray = [];
@@ -656,11 +659,14 @@
 		return {
       //----------------------------
       //                  Public Methods
-			init : function(src){
-        area.w = window.innerWidth;
-        area.h = window.innerHeight;
+			init : function(src, w=0,h=0,horizontal=4,vertical=3){
+        area.w = (w <= 0 || w == undefined) ? window.innerWidth : w;
+        area.h = (h <= 0 || h == undefined) ? window.innerHeight : h;
+
         gameCanvas.width = area.w;
         gameCanvas.height = area.h;
+				__setInitValues(horizontal,vertical);
+
         __loadImage(src);
 			}
       //----------------------------
@@ -668,12 +674,5 @@
 	}());
 
   //
-  puzzleGame.init("img/robot-kirobo.jpg");
-
-  /*
-  console.log( screen.width, screen.height );
-  console.log( screen.availWidth, screen.availHeight );
-  console.log( window.innerWidth, window.innerHeight );
-  console.log( window.outerWidth, window.outerHeight );
-  */
+  puzzleGame.init("img/robot-kirobo.jpg",0,0,2,2);
 }());

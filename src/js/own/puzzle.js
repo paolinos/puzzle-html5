@@ -579,6 +579,9 @@
       __updatePiece(obj);
     }
 
+    /*
+     *
+     */
     var __checkCollision = function(object1, object2){
   		var rect1 = object1.getBounds();
   		var rect2 = object2.getBounds();

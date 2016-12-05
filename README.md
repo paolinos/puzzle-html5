@@ -2,7 +2,7 @@
 This was a game that I made more than year ago.
 So I clean a bit the code and put in a better way.
 
-This is a puzzle game, using Html5 canvas, using the [CreateJS](www.createjs.com) .
+This is a puzzle game, using Html5 canvas, using the [CreateJS](http://www.createjs.com) .
 
 So, the idea is load the image, and generate all the pieces dynamically.
 ```

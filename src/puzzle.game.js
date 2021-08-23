@@ -1,4 +1,4 @@
-import { CanvasRender, ImageRendering } from './rendering.js';
+import { CanvasRender, ImageRendering, PiecePuzzle } from './rendering.js';
 import { InputData } from './input.settings.js';
 
 // TODO:    old school or requestAnimationFrame?
@@ -35,6 +35,9 @@ class TimeLoop{
 }
 const timer = new TimeLoop();
 
+/**
+ * Jigsaw Puzzle
+ */
 export default class PuzzleGame {
     constructor(canvasId, inputSettings) {
         this.stage = new CanvasRender(canvasId);
@@ -52,7 +55,19 @@ export default class PuzzleGame {
     }
 
     update() {
-        this.stage.render([this.image]);
+
+        try {
+            let data = [this.image];
+        
+            const pieces = PiecePuzzle.createFromImage(this.image, this.inputSettings.getHorizontal(), this.inputSettings.getVertical());
+            this.stage.render(pieces);
+            
+        } catch (error) {
+            console.log(error);
+        }
+
+        // TODO: stop time to test pices rendering
+        timer.stop();
     }
 
     stop() {

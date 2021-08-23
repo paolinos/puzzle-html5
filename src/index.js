@@ -1,13 +1,19 @@
+import InputSettings from "./input.settings";
+import PuzzleGame from "./puzzle.game";
+
 const onInit = async () => {
-    
-    const canvas = document.getElementById('drawArea');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
-    const ctx = canvas.getContext('2d');
+    const settings = new InputSettings();
+    settings.addEventOnStart((success, data) => {
+        if (!success) {
+            alert(data);
+            return;
+        }
 
-    ctx.beginPath();
-    ctx.rect(100, 50, 140, 74);
-    ctx.stroke();
+        
+        const game = new PuzzleGame("drawArea", data);
+        game.start();
+
+    });
 }   
 onInit();

@@ -117,13 +117,104 @@ export class PiecePuzzle extends BaseRenderObject {
         this.imgy = imgy;
         this.width = width;
         this.height = height;
+
+        this.tabs = tabs;
+
+        // Internal calculations
+        this.toX = this.x + this.width;
+        this.toY = this.y + this.height;
+        this.middleWidth = this.x + (this.width * 0.5);
+        this.middleHeight = this.y + (this.height * 0.5);
+
+        this.tabSizeW = this.width * 0.10; // 15 percent
+        this.tabSizeH = this.height * 0.10; // 15 percent
+        if (this.tabSizeW > this.tabSizeH) {
+            this.tabSizeH = this.tabSizeW;
+        } else {
+            this.tabSizeW = this.tabSizeH;
+        }
     }
 
 
     render(ctx) {
         if (!this.ready) return;
 
+        //ctx.drawImage(this.img, this.imgx, this.imgy, this.width, this.height, this.x, this.y, this.width, this.height);
+
+        // Get calculation values
+        const toX = this.toX;
+        const toY = this.toY;
+        const middleWidth = this.middleWidth;
+        const middleHeight = this.middleHeight;
+        const tabSizeW = this.tabSizeW;
+        const tabSizeH = this.tabSizeW;
+
+        // Tab to find
+        let tab = null;
+
+        ctx.save();
+
+        ctx.beginPath();
+        // Move to x,y position
+        ctx.moveTo(this.x, this.y);
+
+        // TOP Line
+        tab = this.tabs.find(el => el.getPosition() === PUZZLE_TABS_UP);
+        if (tab) {
+            const multiple = tab.isInternal() ? 1 : -1;
+            // Inside tab
+            ctx.lineTo(middleWidth - tabSizeW, this.y);
+            ctx.quadraticCurveTo(middleWidth - (tabSizeW*2), this.y + (tabSizeH * multiple), middleWidth, this.y + (tabSizeH * multiple))
+            ctx.quadraticCurveTo(middleWidth + (tabSizeW*2), this.y + (tabSizeH * multiple), middleWidth + tabSizeW, this.y)
+        }
+        ctx.lineTo(toX, this.y);            // close Line    
+        
+
+        // Right Line
+        tab = this.tabs.find(el => el.getPosition() === PUZZLE_TABS_RIGHT);
+        if (tab) {
+            const multiple = tab.isInternal() ? -1 : 1;
+            // Inside tab
+            ctx.lineTo(toX, middleHeight - tabSizeH);
+            ctx.quadraticCurveTo(toX + (tabSizeW * multiple), middleHeight - (tabSizeH * 2), toX + (tabSizeW * multiple), middleHeight)
+            ctx.quadraticCurveTo(toX + (tabSizeW * multiple), middleHeight + (tabSizeH * 2), toX, middleHeight + tabSizeH)
+        }
+        ctx.lineTo(toX, toY);               // close Line
+        
+        
+        // Bottom line
+        tab = this.tabs.find(el => el.getPosition() === PUZZLE_TABS_DOWN);
+        if (tab) {
+            const multiple = tab.isInternal() ? -1 : 1;
+            // Inside tab
+            ctx.lineTo(middleWidth + tabSizeW, toY);
+            ctx.quadraticCurveTo(middleWidth + (tabSizeW*2), toY + (tabSizeH * multiple), middleWidth, toY + (tabSizeH * multiple))
+            ctx.quadraticCurveTo(middleWidth - (tabSizeW*2), toY + (tabSizeH * multiple), middleWidth - tabSizeW, toY)
+        }
+        ctx.lineTo(this.x, toY);            // close Line
+        
+
+        // Left line
+        tab = this.tabs.find(el => el.getPosition() === PUZZLE_TABS_LEFT);
+        if (tab) {
+            const multiple = tab.isInternal() ? 1 : -1;
+            // Inside tab
+            ctx.lineTo(this.x, middleHeight + tabSizeH);
+            ctx.quadraticCurveTo(this.x + (tabSizeW * multiple), middleHeight + (tabSizeH * 2), this.x + (tabSizeW * multiple), middleHeight)
+            ctx.quadraticCurveTo(this.x + (tabSizeW * multiple), middleHeight - (tabSizeH * 2), this.x, middleHeight - tabSizeH)
+        }
+        ctx.lineTo(this.x, this.y);         // close Line
+        
+        // Close path
+        ctx.closePath();
+        ctx.stroke();     // Print line.
+        
+        ctx.clip();
+
+        // TODO: Take the required image 
         ctx.drawImage(this.img, this.imgx, this.imgy, this.width, this.height, this.x, this.y, this.width, this.height);
+
+        ctx.restore();
     }
 
     /**
@@ -146,8 +237,14 @@ export class PiecePuzzle extends BaseRenderObject {
                 // Calculate random positions
                 const randomX = Math.random() * img.width;
                 const randomY = Math.random() * img.height;
-
-                const piece = new PiecePuzzle(img, randomX, randomY,  x * imgW, y * imgH, imgW, imgH);
+                
+                // TODO: create tabsin the correct position.
+                const piece = new PiecePuzzle(img, randomX, randomY, x * imgW, y * imgH, imgW, imgH, [
+                    new Tab(PUZZLE_TABS_UP),
+                    new Tab(PUZZLE_TABS_RIGHT),
+                    new Tab(PUZZLE_TABS_DOWN),
+                    new Tab(PUZZLE_TABS_LEFT, true)
+                ]);
                 data.push(piece)
             }
         }

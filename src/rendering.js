@@ -4,8 +4,18 @@ export class CanvasRender {
         //this.canvas.width = window.innerWidth;
         //this.canvas.height = window.innerHeight;
         this.ctx = this.canvas.getContext('2d');
+
+        this.mouseDown = false;
+        this.canvas.addEventListener("mousedown", this.onTouchDown.bind(this), false);
+        this.canvas.addEventListener("mousemove", this.onTouchMove.bind(this), false);
+        this.canvas.addEventListener("mouseup", this.onTouchUp.bind(this), false);
+        this.canvas.addEventListener("mouseout", this.onTouchUp.bind(this), false);
+        
     }
 
+    /**
+     * Clear canvas
+     */
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
@@ -20,7 +30,78 @@ export class CanvasRender {
 
         for (const item of obj) {
             item.render(this.ctx);
-        }        
+        }       
+    }
+
+    onTouchDown(e) {
+        //console.log("onTouchDown", e);
+        this.mouseDown = true;
+        
+        if (!this.func) return;
+        const rect = this.canvas.getBoundingClientRect();
+        this.func(new TouchPosition(TOUCH_EVENT.DOWN, e.clientX -  rect.left, e.clientY - rect.top));
+    }
+    onTouchMove(e) {
+        if (this.mouseDown) {
+            //console.log("onTouchMove", e);
+
+            if (!this.func) return;
+            const rect = this.canvas.getBoundingClientRect();
+            this.func(new TouchPosition(TOUCH_EVENT.MOVE, e.clientX -  rect.left, e.clientY - rect.top));
+        }
+    }
+    onTouchUp(e) {
+        if (!this.mouseDown) return;
+
+        //console.log("onTouchUp", e);
+        this.mouseDown = false;
+
+        if (!this.func) return;
+        const rect = this.canvas.getBoundingClientRect();
+        this.func(new TouchPosition(TOUCH_EVENT.UP, e.clientX -  rect.left, e.clientY - rect.top));
+    }
+
+
+    addTouchEvent(func) {
+        this.func = func;
+    }
+}
+
+export const TOUCH_EVENT = {
+    DOWN: 10,
+    MOVE: 20,
+    UP: 30
+}
+
+class TouchPosition {
+    constructor(type, x,y) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+    }
+
+    isDown() {
+        return this.type === TOUCH_EVENT.DOWN;
+    }
+
+    isMove() {
+        return this.type === TOUCH_EVENT.MOVE;
+    }
+
+    isUp() {
+        return this.type === TOUCH_EVENT.UP;
+    }
+
+    getPos() {
+        return { x: this.x, y: this.y };
+    }
+
+    getX() {
+        return this.x;
+    }
+
+    getY() {
+        return this.y;
     }
 }
 
@@ -168,26 +249,40 @@ export class PiecePuzzle extends BaseRenderObject {
         //  | |     | |
         //  | ------- |
         //
-        let incrementW = 0;
-        let incrementH = 0;
-
-        this.sx = this.imgx;
-        this.dx = this.x;
-        if (this.imgx - this.tabSizeW > 0) {
-            this.sx -= this.tabSizeW;
-            this.dx -= this.tabSizeW;
-            incrementW += this.tabSizeW;
-        }
-        this.sy = this.imgy;
-        this.dy = this.y;
-        if (this.imgy - this.tabSizeH > 0) {
-            this.sy -= this.tabSizeH;
-            this.dy -= this.tabSizeH;
-            incrementH += this.tabSizeH;
-        }
         
-        this.sw = (this.sx + this.width + this.tabSizeW < this.img.width ? this.width + this.tabSizeW : this.width) + incrementW;
-        this.sh = (this.sy + this.height + this.tabSizeH < this.img.height ? this.height + this.tabSizeH : this.height) + incrementH;
+        this.dxDiff = 0;
+        if (this.imgx - this.tabSizeW > 0) {
+            this.dxDiff = this.tabSizeW;
+        }
+        this.dyDiff = 0;
+        if (this.imgy - this.tabSizeH > 0) {
+            this.dyDiff = this.tabSizeH;            
+        }
+
+        this.sx = this.imgx - this.dxDiff;
+        this.sy = this.imgy - this.dyDiff;
+        this.updateDifference();
+        
+        this.sw = (this.sx + this.width + this.tabSizeW < this.img.width ? this.width + this.tabSizeW : this.width) + this.dxDiff;
+        this.sh = (this.sy + this.height + this.tabSizeH < this.img.height ? this.height + this.tabSizeH : this.height) + this.dyDiff;
+    }
+
+    updateDifference() {
+        this.dx = this.x - this.dxDiff;
+        this.dy = this.y - this.dyDiff;
+    }
+
+    setPos(x, y) {
+        this.x = x;
+        this.y = y;
+
+        // TODO: refactor here, repeated code
+        this.toX = this.x + this.width;
+        this.toY = this.y + this.height;
+        this.middleWidth = this.x + (this.width * 0.5);
+        this.middleHeight = this.y + (this.height * 0.5);
+
+        this.updateDifference();
     }
 
 
@@ -269,6 +364,18 @@ export class PiecePuzzle extends BaseRenderObject {
         ctx.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.sw, this.sh);
 
         ctx.restore();
+    }
+
+    /**
+     * Check Touch collision, to know if we are touching the piece
+     * @param {TouchPosition} touchPos 
+     * @returns {boolean}
+     */
+    checkColission(touchPos) {
+        return (
+            touchPos.getX() >= this.x && touchPos.getX() <= this.x + this.width &&
+            touchPos.getY() >= this.y && touchPos.getY() <= this.y + this.height
+        )
     }
 
     /**

@@ -97,8 +97,10 @@ export class PiecePuzzle extends BaseRenderObject {
     /**
      * 
      * @param {Image} img 
-     * @param {int} x 
-     * @param {int} y 
+     * @param {int} x Position X in the canvas
+     * @param {int} y Position y in the canvas
+     * @param {int} imgx
+     * @param {int} imgy
      * @param {int} width 
      * @param {int} height 
      * @param {array of Tabs} tabs tabs to each position to create
@@ -120,6 +122,13 @@ export class PiecePuzzle extends BaseRenderObject {
 
         this.tabs = tabs;
 
+        this._init();
+    }
+
+    /**
+     * Private method to calculate interval props
+     */
+    _init() {
         // Internal calculations
         this.toX = this.x + this.width;
         this.toY = this.y + this.height;
@@ -133,13 +142,34 @@ export class PiecePuzzle extends BaseRenderObject {
         } else {
             this.tabSizeW = this.tabSizeH;
         }
+
+        // Calculate area to take the image and render.
+        //  as we have tabs, we need to take more space to the image.
+        let incrementW = 0;
+        let incrementH = 0;
+
+        this.sx = this.imgx;
+        this.dx = this.x;
+        if (this.imgx - this.tabSizeW > 0) {
+            this.sx -= this.tabSizeW;
+            this.dx -= this.tabSizeW;
+            incrementW += this.tabSizeW;
+        }
+        this.sy = this.imgy;
+        this.dy = this.y;
+        if (this.imgy - this.tabSizeH > 0) {
+            this.sy -= this.tabSizeH;
+            this.dy -= this.tabSizeH;
+            incrementH += this.tabSizeH;
+        }
+        
+        this.sw = (this.sx + this.width + this.tabSizeW < this.img.width ? this.width + this.tabSizeW : this.width) + incrementW;
+        this.sh = (this.sy + this.height + this.tabSizeH < this.img.height ? this.height + this.tabSizeH : this.height) + incrementH;
     }
 
 
     render(ctx) {
         if (!this.ready) return;
-
-        //ctx.drawImage(this.img, this.imgx, this.imgy, this.width, this.height, this.x, this.y, this.width, this.height);
 
         // Get calculation values
         const toX = this.toX;
@@ -209,10 +239,11 @@ export class PiecePuzzle extends BaseRenderObject {
         ctx.closePath();
         ctx.stroke();     // Print line.
         
+        // Create the mask for the image
         ctx.clip();
 
-        // TODO: Take the required image 
-        ctx.drawImage(this.img, this.imgx, this.imgy, this.width, this.height, this.x, this.y, this.width, this.height);
+        // Draw Image
+        ctx.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.sw, this.sh);
 
         ctx.restore();
     }
@@ -234,18 +265,25 @@ export class PiecePuzzle extends BaseRenderObject {
         const data = [];
         for (let x = 0; x < horizontal; x++) {
             for (let y = 0; y < vertical; y++) {
-                // Calculate random positions
-                const randomX = Math.random() * img.width;
-                const randomY = Math.random() * img.height;
-                
-                // TODO: create tabsin the correct position.
-                const piece = new PiecePuzzle(img, randomX, randomY, x * imgW, y * imgH, imgW, imgH, [
-                    new Tab(PUZZLE_TABS_UP),
-                    new Tab(PUZZLE_TABS_RIGHT),
-                    new Tab(PUZZLE_TABS_DOWN),
-                    new Tab(PUZZLE_TABS_LEFT, true)
-                ]);
-                data.push(piece)
+                // TODO: Calculate random positions
+                const randomX = x * imgW //Math.random() * img.width;
+                const randomY = y * imgH //Math.random() * img.height;
+
+                let tabs = [];
+                if (x !== 0) {
+                    tabs.push(new Tab(PUZZLE_TABS_LEFT, true));
+                }
+                if (y !== 0) {
+                    tabs.push(new Tab(PUZZLE_TABS_UP, true));
+                }
+                if (x + 1 < horizontal) {
+                    tabs.push(new Tab(PUZZLE_TABS_RIGHT));
+                }
+                if (y + 1 < vertical) {
+                    tabs.push(new Tab(PUZZLE_TABS_DOWN));
+                }
+
+                data.push(new PiecePuzzle(img, randomX, randomY, x * imgW, y * imgH, imgW, imgH, tabs))
             }
         }
 

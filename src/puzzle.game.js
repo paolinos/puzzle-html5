@@ -22,9 +22,6 @@ class TimeLoop{
             if (this.func) {
                 this.func();
             }
-
-            // TODO: remove console.log!!!
-            console.log("miliseconds per frame: ", current - this.prevFrame);
             this.prevFrame = current;
         }, this.intervalTime)
     }
@@ -80,7 +77,11 @@ export default class PuzzleGame {
             }
         });
 
-
+        // TODO: is this the best place?
+        this.touchEvent = null;
+        this.stage.addTouchEvent((e) => {
+            this.touchEvent = e;
+        })
         timer.addEventOnFrame(this.onUpdateGame.bind(this));
     }
 
@@ -132,6 +133,9 @@ export default class PuzzleGame {
         
         this.pieces = PiecePuzzle.createFromImage(this.image, this.inputSettings.getHorizontal(), this.inputSettings.getVertical());
         
+        // Clear touch & piece to move
+        this.touchEvent = null;
+        this.pieceToMove = null;
         timer.start();
     }
 
@@ -140,8 +144,39 @@ export default class PuzzleGame {
      */
     onUpdateGame() {
         try {
+            // TODO: review this logic
+            if (this.touchEvent) {
+                console.log("this.touchEvent:", this.touchEvent);
+                if (!this.touchEvent.isDown()) {
+
+                    let pieceTouched = null;
+                    let pos = 0;
+                    for (pos = 0; pos < this.pieces.length; pos++) {
+                        const piece = this.pieces[pos];
+                        if (piece.checkColission(this.touchEvent)) {
+                            pieceTouched = piece;
+                            break;
+                        };
+                    }
+
+                    if (pieceTouched) {
+                        // Update object to render last
+                        this.pieces.splice(pos, 1);
+                        this.pieces.push(pieceTouched);
+                        this.pieceToMove = pieceTouched;
+                        console.log("pieceTouched:", pieceTouched);
+
+                        this.pieceToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
+                    }
+                }
+            }
+            this.touchEvent = null;
+            
+
             const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
             this.ui.setTime(`End game in: ${TIME_GAME - currentTime}`);
+            
+            // Render
             this.stage.render(this.pieces);
             
             if (currentTime >= TIME_GAME) {
@@ -149,7 +184,7 @@ export default class PuzzleGame {
                 this.ui.setTime(`GAME OVER`);
                 timer.stop();
             }
-            
+
         } catch (error) {
             console.log(error);
             

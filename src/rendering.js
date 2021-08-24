@@ -35,6 +35,14 @@ class BaseRenderObject {
     render(ctx) {
         throw new Error("Not implemented");
     }
+
+    /**
+     * Is object ready
+     * @returns {boolean}
+     */
+    isReady() {
+        return this.ready;
+    }
 }
 
 /**
@@ -44,10 +52,15 @@ export class ImageRendering extends BaseRenderObject {
     constructor(src) {
         super(false);
 
+        this.func = null;
+
         this.img = new Image();
         this.img.addEventListener("load", () => {
             console.log("Ready image to render");
             this.ready = true;
+            if (this.func) {
+                this.func();
+            }
         })
         this.img.src = src;
     }
@@ -60,6 +73,10 @@ export class ImageRendering extends BaseRenderObject {
 
     getImg() {
         return this.img;
+    }
+
+    onLoadComplete(func) {
+        this.func = func;
     }
 }
 

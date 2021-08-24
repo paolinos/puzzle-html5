@@ -145,6 +145,12 @@ export class PiecePuzzle extends BaseRenderObject {
 
         // Calculate area to take the image and render.
         //  as we have tabs, we need to take more space to the image.
+        //  -----------
+        //  | ------- |
+        //  | |Image| |
+        //  | |     | |
+        //  | ------- |
+        //
         let incrementW = 0;
         let incrementH = 0;
 

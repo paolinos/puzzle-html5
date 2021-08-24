@@ -35,7 +35,10 @@
         }
 
         .area{
-            position: absolute;
+            /*position: absolute;*/
+        }
+        #drawArea{
+            border: solid 2px #4d3333;
         }
         .time-area{
             width: 100%;
@@ -59,8 +62,8 @@
         </div>
     </div>
     <div class="game">
-        <canvas class="area" id="drawArea" width="1024" height="768"></canvas>
         <div class="area time-area" id="time">{{TIME}}</div>
+        <canvas class="area" id="drawArea" width="1024" height="768"></canvas>
     </div>
 </body>
 </html>

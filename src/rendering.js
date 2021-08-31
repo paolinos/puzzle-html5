@@ -105,12 +105,26 @@ class TouchPosition {
     }
 }
 
+// TODO: move this to other file
+// Autoincrement ids
+const AutoIncrement = (() => {
+    let _id = 0;
+
+    return {
+        getId() {
+            _id++;
+            return _id;
+        }
+    }
+})();
+
 /**
  * Base Rendereable Object
  */
 class BaseRenderObject {
     constructor(ready=true) {
         this.ready = ready;
+        this.id = AutoIncrement.getId();
     }
 
     render(ctx) {
@@ -123,6 +137,13 @@ class BaseRenderObject {
      */
     isReady() {
         return this.ready;
+    }
+    
+    /**
+     * @returns {int} id
+     */
+    getId() {
+        return this.id;
     }
 }
 
@@ -190,6 +211,66 @@ class Tab{
     }
 }
 
+/**
+ * Drag & Drop functionality
+ * // TODO: change this
+ */
+class DragAndDrop {
+    constructor(x,y) {
+        this.x = x;
+        this.y = y;
+
+        this.clear();
+    }
+
+    /**
+     * Update positions
+     * @param {int} x 
+     * @param {int} y 
+     */
+    update(x, y) {
+        if (this.diffX === null || this.diffY === null) {
+            this.diffX = Math.abs(x - this.x);
+            this.diffY = Math.abs(y - this.y);
+        }
+
+        this.__updatePos(x- this.diffX, y - this.diffY);
+    }
+
+    /**
+     * Clear to relese the drag & drop. 
+     * this will clear the difference of X,Y
+     */
+    clear() {
+        this.diffX = null;
+        this.diffY = null;
+    }
+
+    /** 
+     * @returns {int} x position
+     */
+    getX() {
+        return this.x;
+    }
+
+    /**
+     * @returns {int} y position
+     */
+    getY() {
+        return this.y;
+    }
+
+    /**
+     * Private. set properties X,Y
+     * @param {int} x 
+     * @param {int} y 
+     */
+    __updatePos(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
 
 export class PiecePuzzle extends BaseRenderObject {
     /**
@@ -220,6 +301,8 @@ export class PiecePuzzle extends BaseRenderObject {
 
         this.tabs = tabs;
 
+        // TODO: implement this as event, when change the render engine
+        this.dragAndDrop = new DragAndDrop(x,y);
         this._init();
     }
 
@@ -273,8 +356,10 @@ export class PiecePuzzle extends BaseRenderObject {
     }
 
     setPos(x, y) {
-        this.x = x;
-        this.y = y;
+        this.dragAndDrop.update(x, y);
+        
+        this.x = this.dragAndDrop.getX();
+        this.y = this.dragAndDrop.getY();
 
         // TODO: refactor here, repeated code
         this.toX = this.x + this.width;
@@ -283,6 +368,14 @@ export class PiecePuzzle extends BaseRenderObject {
         this.middleHeight = this.y + (this.height * 0.5);
 
         this.updateDifference();
+    }
+
+    /**
+     * Clear drag & drop. 
+     * // TODO: remove this when object has drag & drop implementation directly
+     */
+    clearDragAndDrop() {
+        this.dragAndDrop.clear();
     }
 
 

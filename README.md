@@ -1,12 +1,10 @@
 ## Description
-refactoring:
-- add webpack
-- re create/ split code into files
-- use pure canvas rendering
-- create each piece and rendering
-- render the tabs of each pieces, and make the calculation. draw a border (maybe nice to have)
-- create game logic and make it works
-- start,should preview image, count 3,2,1 and then create the pieces to play, and start counting from X seconds to 0.
+This is a Jigsaw Puzzle that run pure JS & Canvas.
+
+Running the app, you can dynamic configure the amount of pieces that you want (x,y) and the image to play.
+
+The code will take that image, create each piece and rendering each one.
+
 
 ```
 // run webpack watch and the open the './dist/index.html'

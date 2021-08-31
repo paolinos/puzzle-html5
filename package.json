@@ -1,0 +1,26 @@
+{
+  "name": "puzzle-html5",
+  "version": "1.0.0",
+  "description": "This was a game that I made more than year ago. So I clean a bit the code and put in a better way.",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paolinos/puzzle-html5.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/paolinos/puzzle-html5/issues"
+  },
+  "homepage": "https://github.com/paolinos/puzzle-html5#readme",
+  "devDependencies": {
+    "html-webpack-plugin": "^5.3.2",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
+  }
+}

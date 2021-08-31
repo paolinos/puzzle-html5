@@ -146,33 +146,46 @@ export default class PuzzleGame {
         try {
             // TODO: review this logic
             if (this.touchEvent) {
-                console.log("this.touchEvent:", this.touchEvent);
-                if (!this.touchEvent.isDown()) {
 
-                    let pieceTouched = null;
-                    let pos = 0;
-                    for (pos = 0; pos < this.pieces.length; pos++) {
-                        const piece = this.pieces[pos];
-                        if (piece.checkColission(this.touchEvent)) {
-                            pieceTouched = piece;
-                            break;
-                        };
-                    }
-
+                // TODO: this should be part of the update of the Stage, and emit event of Touch
+                // Identify item that is touching
+                let pieceTouched = null;
+                let pos = 0;
+                for (pos = this.pieces.length-1; pos >= 0; pos--) {
+                    const piece = this.pieces[pos];
+                    if (piece.checkColission(this.touchEvent)) {
+                        pieceTouched = piece;
+                        break;
+                    };
+                }
+                if (this.touchEvent.isDown()) {
                     if (pieceTouched) {
+                        // NOTE: this should be in the rendering engine. but we are not taking care about engine. 
                         // Update object to render last
                         this.pieces.splice(pos, 1);
                         this.pieces.push(pieceTouched);
-                        this.pieceToMove = pieceTouched;
-                        console.log("pieceTouched:", pieceTouched);
 
+                        this.pieceToMove = pieceTouched;
+                        // TODO: check differences between the pieces and touch.
                         this.pieceToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
                     }
+                }
+                else if (this.touchEvent.isMove() && this.pieceToMove) {
+                    // TODO: check differences between the pieces and touch.
+                    this.pieceToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
+                }
+                else if (this.touchEvent.isUp()) {
+
+                    if (this.pieceToMove) {
+                        // Clear touch differences
+                        this.pieceToMove.clearDragAndDrop();
+                    }
+                    this.pieceToMove = null;
                 }
             }
             this.touchEvent = null;
             
-
+            // Update UI Time
             const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
             this.ui.setTime(`End game in: ${TIME_GAME - currentTime}`);
             

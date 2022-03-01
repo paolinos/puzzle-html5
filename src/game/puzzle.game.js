@@ -1,6 +1,6 @@
 import { PUZZLE_GAME_STATUS, TIME_GAME, TO_SECONDS } from "../const";
 import TimeLoop from "../common/timeloop.common";
-import CanvasRender from "../render/canvas.render";
+import { Engine2d } from "../engine/engine2d";
 // Objects
 import ImageObject from "../objects/image.object";
 import PiecePuzzleObject from "../objects/piecepuzzle.object";
@@ -10,13 +10,17 @@ import HtmlUI from "../ui/html.ui";
 // TODO: change this
 const timer = new TimeLoop();
 
+
+// TODO: Refactor, review
+
 /**
  * Jigsaw Puzzle
  * // TODO: create layouts and update it
  */
 export default class PuzzleGame {
     constructor(canvasId, inputSettings) {
-        this.stage = new CanvasRender(canvasId);
+        this.stage = new Engine2d(canvasId);
+
         this.inputSettings = inputSettings; // as InputData;
         this.ui = new HtmlUI();
 
@@ -64,7 +68,9 @@ export default class PuzzleGame {
         let counter = 5;
         this.ui.setTime(`Starting in: ${counter}`);
 
-        this.stage.render([this.image]);
+        this.stage.addItem(this.image);
+        this.stage.render();
+        
 
         clearInterval(this.previewInterval);
         this.previewInterval = setInterval(() => {
@@ -73,6 +79,8 @@ export default class PuzzleGame {
             if (counter <= 0) {
                 clearInterval(this.previewInterval);
                 
+                this.stage.removeItem(this.image);
+
                 this.runGame();
             }
         }, 1000)
@@ -85,9 +93,11 @@ export default class PuzzleGame {
         this.previewInterval = PUZZLE_GAME_STATUS.PLAYING;
         this.timeStart = Date.now();
         this.ui.setTime(`End game in: ${TIME_GAME}`);
+        this.stage.clear();
         
         this.pieces = PiecePuzzleObject.createFromImage(this.image, this.inputSettings.getHorizontal(), this.inputSettings.getVertical());
-        
+        this.stage.addRange(this.pieces);
+
         // Clear touch & piece to move
         this.touchEvent = null;
         this.pieceToMove = null;
@@ -117,16 +127,17 @@ export default class PuzzleGame {
                     if (pieceTouched) {
                         // NOTE: this should be in the rendering engine. but we are not taking care about engine. 
                         // Update object to render last
+
+                        // TODO: review  
                         this.pieces.splice(pos, 1);
                         this.pieces.push(pieceTouched);
 
                         this.pieceToMove = pieceTouched;
-                        // TODO: check differences between the pieces and touch.
-                        this.pieceToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
+
+                        this.pieceToMove.startDragAndDrop(this.touchEvent.getX(), this.touchEvent.getY());
                     }
                 }
                 else if (this.touchEvent.isMove() && this.pieceToMove) {
-                    // TODO: check differences between the pieces and touch.
                     this.pieceToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
                 }
                 else if (this.touchEvent.isUp()) {
@@ -145,8 +156,8 @@ export default class PuzzleGame {
             this.ui.setTime(`End game in: ${TIME_GAME - currentTime}`);
             
             // Render
-            this.stage.render(this.pieces);
-            
+            this.stage.render();
+
             if (currentTime >= TIME_GAME) {
 
                 this.ui.setTime(`GAME OVER`);

@@ -17,7 +17,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             title: 'My App',
-            template: './src/index.html',
+            template: './public/index.html',
             hash: true,
             inject: 'body'
         })

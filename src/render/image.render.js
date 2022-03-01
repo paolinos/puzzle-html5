@@ -1,8 +1,10 @@
-import BaseObjectRender from "./base.object.render";
+import {Rendereable2D} from "../engine/rendereable";
 
-export default class ImageRender extends BaseObjectRender {
+export default class ImageRender extends Rendereable2D {
     constructor(src) {
-        super(false);
+        super();
+
+        this.ready = false;
 
         this.func = null;
 
@@ -21,6 +23,10 @@ export default class ImageRender extends BaseObjectRender {
         if (!this.ready) return;
 
         ctx.drawImage(this.img, 0, 0);
+    }
+
+    isReady(){
+        return this.ready;
     }
 
     getImg() {

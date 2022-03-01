@@ -1,7 +1,9 @@
 import { PUZZLE_TABS } from "../const";
-import DragAndDropRenderDispatcher from "./draganddrop.render";
+import {Rendereable2D} from "../engine/rendereable";
 
-export default class PiecePuzzleRender extends DragAndDropRenderDispatcher {
+// TODO: Review,Clean,Refactor this
+
+export default class PiecePuzzleRender extends Rendereable2D {
     /**
      * 
      * @param {Image} img 
@@ -29,9 +31,13 @@ export default class PiecePuzzleRender extends DragAndDropRenderDispatcher {
         this.height = height;
 
         this.tabs = tabs;
+        
 
-        // TODO: implement this as event, when change the render engine
-        //this.dragAndDrop = new DragAndDrop(x,y);
+        // Drag & Drop functionality
+        this.drag_drop = false;
+        this.drag_drop_start_x = 0;
+        this.drag_drop_start_y = 0;
+
         this._init();
     }
 
@@ -85,17 +91,13 @@ export default class PiecePuzzleRender extends DragAndDropRenderDispatcher {
     }
 
     setPos(x, y) {
-        // TODO: update drag & drop event
-        /*
-        this.dragAndDrop.update(x, y);
-        
-        this.x = this.dragAndDrop.getX();
-        this.y = this.dragAndDrop.getY();
-        */
-        
-        // TODO: implement drag & drop event
-        this.x = x;
-        this.y = y;
+        if(this.drag_drop){
+            this.x = x + this.drag_drop_start_x;
+            this.y = y + this.drag_drop_start_y;    
+        }else{
+            this.x = x;
+            this.y = y;
+        }
 
         // TODO: refactor here, repeated code
         this.toX = this.x + this.width;
@@ -107,16 +109,29 @@ export default class PiecePuzzleRender extends DragAndDropRenderDispatcher {
     }
 
     /**
-     * Clear drag & drop. 
+     * Set starting Drag & Drop
+     */
+    startDragAndDrop(x,y){
+        this.drag_drop = true;
+
+        console.log(`current: {x: ${this.x}, y: ${this.y} }`, `new {x: ${x}, y:${y}}`);
+        this.drag_drop_start_x = this.x - x;
+        this.drag_drop_start_y = this.y - y;
+    }
+
+
+    /**
+     * Stop drag & drop. 
      * // TODO: remove this when object has drag & drop implementation directly
      */
     clearDragAndDrop() {
-        //this.dragAndDrop.clear();
+        this.drag_drop = false;
+        this.drag_drop_start_x = 0;
+        this.drag_drop_start_y = 0;
     }
 
 
     render(ctx) {
-        if (!this.ready) return;
 
         // Get calculation values
         const toX = this.toX;

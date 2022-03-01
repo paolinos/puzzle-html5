@@ -10,9 +10,11 @@ export default class PiecePuzzleObject extends PiecePuzzleRender{
     // TODO: move logic here
 
     /**
-     * 
+     * Cut image in pieces and returned a list of PiecePuzzleObject
      * @param {ImageRendering} image
-     * @returns {Array of PiecePuzzle} PiecePuzzle array
+     * @param {number} horizontal
+     * @param {number} vertical
+     * @returns {Array of PiecePuzzleObject} PiecePuzzleObject array
      */
      static createFromImage(image, horizontal, vertical) {
         
@@ -26,9 +28,8 @@ export default class PiecePuzzleObject extends PiecePuzzleRender{
         const data = [];
         for (let x = 0; x < horizontal; x++) {
             for (let y = 0; y < vertical; y++) {
-                // TODO: Calculate random positions
-                const randomX = x * imgW //Math.random() * img.width;
-                const randomY = y * imgH //Math.random() * img.height;
+                const randomX = x * imgW;
+                const randomY = y * imgH;
 
                 let tabs = [];
                 if (x !== 0) {

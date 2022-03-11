@@ -15,7 +15,7 @@ const timer = new TimeLoop();
 
 /**
  * Jigsaw Puzzle
- * // TODO: create layouts and update it
+ // TODO: create layouts and update it
  */
 export default class PuzzleGame {
     constructor(canvasId, inputSettings) {
@@ -117,17 +117,24 @@ export default class PuzzleGame {
                 // Identify item that is touching
                 let pieceTouched = null;
                 let pos = 0;
-                for (pos = this.pieces.length-1; pos >= 0; pos--) {
+                for (pos = this.pieces.length - 1; pos >= 0; pos--) {
                     const piece = this.pieces[pos];
                     if (piece.checkTouchColission(this.touchEvent)) {
                         pieceTouched = piece;
                         break;
                     };
                 }
+                
                 if (this.touchEvent.isDown()) {
                     if (pieceTouched) {
                         // NOTE: this should be in the rendering engine. but we are not taking care about engine. 
                         // Update object to render last
+                        
+                        // TODO: review this remove/add part.
+
+                        // update position
+                        this.pieces.splice(pos, 1);
+                        this.pieces.push(pieceTouched);
 
                         // move rendering order to top
                         this.stage.removeItem(pieceTouched);

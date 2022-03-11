@@ -20,5 +20,5 @@ export const PUZZLE_TABS = {
 };
 
 // Validation Const
-export const VALIDATION_INPUT_MIN_VALUE = 3;
+export const VALIDATION_INPUT_MIN_VALUE = 2;
 export const VALIDATION_INPUT_FILE_LENGTH = 5;

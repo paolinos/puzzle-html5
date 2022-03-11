@@ -15,7 +15,7 @@ export default class PiecePuzzleRender extends Rendereable2D {
      * @param {int} height 
      * @param {array of Tabs} tabs tabs to each position to create
      */
-    constructor(img, x, y, imgx, imgy, width, height, tabs = []) {
+    constructor(img, x, y, imgx, imgy, width, height, tabs, row, column) {
         super();
 
         this.img = img;
@@ -30,7 +30,10 @@ export default class PiecePuzzleRender extends Rendereable2D {
         this.width = width;
         this.height = height;
 
-        this.tabs = tabs;
+        this.tabs = tabs || [];
+
+        this._row = row;
+        this._column = column;
         
 
         // Drag & Drop functionality
@@ -39,6 +42,13 @@ export default class PiecePuzzleRender extends Rendereable2D {
         this.drag_drop_start_y = 0;
 
         this._init();
+    }
+
+    get column(){
+        return this._column;
+    }
+    get row(){
+        return this._row;
     }
 
     /**
@@ -91,19 +101,9 @@ export default class PiecePuzzleRender extends Rendereable2D {
     }
 
     setPos(x, y) {
-        if(this.drag_drop){
-            this.x = x + this.drag_drop_start_x;
-            this.y = y + this.drag_drop_start_y;    
-        }else{
-            this.x = x;
-            this.y = y;
-        }
+        this.x = x;
+        this.y = y;
 
-        // TODO: refactor here, repeated code
-        this.toX = this.x + this.width;
-        this.toY = this.y + this.height;
-        this.middleWidth = this.x + (this.width * 0.5);
-        this.middleHeight = this.y + (this.height * 0.5);
 
         this.updateDifference();
     }
@@ -114,15 +114,13 @@ export default class PiecePuzzleRender extends Rendereable2D {
     startDragAndDrop(x,y){
         this.drag_drop = true;
 
-        console.log(`current: {x: ${this.x}, y: ${this.y} }`, `new {x: ${x}, y:${y}}`);
         this.drag_drop_start_x = this.x - x;
         this.drag_drop_start_y = this.y - y;
     }
 
 
     /**
-     * Stop drag & drop. 
-     * // TODO: remove this when object has drag & drop implementation directly
+     * Stop drag & drop.
      */
     clearDragAndDrop() {
         this.drag_drop = false;
@@ -132,12 +130,15 @@ export default class PiecePuzzleRender extends Rendereable2D {
 
 
     render(ctx) {
-
+        // TODO: Fix drag&drop differences of positions
         // Get calculation values
-        const toX = this.toX;
-        const toY = this.toY;
-        const middleWidth = this.middleWidth;
-        const middleHeight = this.middleHeight;
+        const x = this.x//  + this.drag_drop_start_x;
+        const y = this.y//  + this.drag_drop_start_y;
+
+        const toX = x + this.width;
+        const toY = y + this.height;
+        const middleWidth = x + (this.width * 0.5);
+        const middleHeight = y + (this.height * 0.5);
         const tabSizeW = this.tabSizeW;
         const tabSizeH = this.tabSizeW;
 
@@ -148,18 +149,18 @@ export default class PiecePuzzleRender extends Rendereable2D {
 
         ctx.beginPath();
         // Move to x,y position
-        ctx.moveTo(this.x, this.y);
+        ctx.moveTo(x, y);
 
         // TOP Line
         tab = this.tabs.find(el => el.getPosition() === PUZZLE_TABS.UP);
         if (tab) {
             const multiple = tab.isInternal() ? 1 : -1;
             // Inside tab
-            ctx.lineTo(middleWidth - tabSizeW, this.y);
-            ctx.quadraticCurveTo(middleWidth - (tabSizeW*2), this.y + (tabSizeH * multiple), middleWidth, this.y + (tabSizeH * multiple))
-            ctx.quadraticCurveTo(middleWidth + (tabSizeW*2), this.y + (tabSizeH * multiple), middleWidth + tabSizeW, this.y)
+            ctx.lineTo(middleWidth - tabSizeW, y);
+            ctx.quadraticCurveTo(middleWidth - (tabSizeW*2), y + (tabSizeH * multiple), middleWidth, y + (tabSizeH * multiple))
+            ctx.quadraticCurveTo(middleWidth + (tabSizeW*2), y + (tabSizeH * multiple), middleWidth + tabSizeW, y)
         }
-        ctx.lineTo(toX, this.y);            // close Line    
+        ctx.lineTo(toX, y);            // close Line    
         
 
         // Right Line
@@ -183,7 +184,7 @@ export default class PiecePuzzleRender extends Rendereable2D {
             ctx.quadraticCurveTo(middleWidth + (tabSizeW*2), toY + (tabSizeH * multiple), middleWidth, toY + (tabSizeH * multiple))
             ctx.quadraticCurveTo(middleWidth - (tabSizeW*2), toY + (tabSizeH * multiple), middleWidth - tabSizeW, toY)
         }
-        ctx.lineTo(this.x, toY);            // close Line
+        ctx.lineTo(x, toY);            // close Line
         
 
         // Left line
@@ -191,11 +192,11 @@ export default class PiecePuzzleRender extends Rendereable2D {
         if (tab) {
             const multiple = tab.isInternal() ? 1 : -1;
             // Inside tab
-            ctx.lineTo(this.x, middleHeight + tabSizeH);
-            ctx.quadraticCurveTo(this.x + (tabSizeW * multiple), middleHeight + (tabSizeH * 2), this.x + (tabSizeW * multiple), middleHeight)
-            ctx.quadraticCurveTo(this.x + (tabSizeW * multiple), middleHeight - (tabSizeH * 2), this.x, middleHeight - tabSizeH)
+            ctx.lineTo(x, middleHeight + tabSizeH);
+            ctx.quadraticCurveTo(x + (tabSizeW * multiple), middleHeight + (tabSizeH * 2), x + (tabSizeW * multiple), middleHeight)
+            ctx.quadraticCurveTo(x + (tabSizeW * multiple), middleHeight - (tabSizeH * 2), x, middleHeight - tabSizeH)
         }
-        ctx.lineTo(this.x, this.y);         // close Line
+        ctx.lineTo(x, y);         // close Line
         
         // Close path
         ctx.closePath();
@@ -215,10 +216,32 @@ export default class PiecePuzzleRender extends Rendereable2D {
      * @param {TouchPosition} touchPos 
      * @returns {boolean}
      */
-    checkColission(touchPos) {
+     checkTouchColission(touchPos) {
         return (
             touchPos.getX() >= this.x && touchPos.getX() <= this.x + this.width &&
             touchPos.getY() >= this.y && touchPos.getY() <= this.y + this.height
         )
+    }
+
+    /**
+     * Check Collision between Pieces
+     * 
+     * @param {PiecePuzzleRender} piece 
+     * @returns {boolean}
+     */
+    checkPieceCollision(piece){
+        if(
+            ((this.row + 1 === piece.row || this.row - 1 === piece.row) && this.column === piece.column) || 
+            ((this.column + 1 === piece.column || this.column - 1 === piece.column ) && this.row === piece.row)
+        ){
+            // check collision
+            return (
+                piece.x < this.x + this.width &&
+                piece.x + piece.width > this.x &&
+                piece.y < this.y + this.height &&
+                piece.height + piece.y > this.y
+            )
+        }
+        return false;
     }
 }

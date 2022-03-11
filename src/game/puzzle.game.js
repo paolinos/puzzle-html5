@@ -3,7 +3,7 @@ import TimeLoop from "../common/timeloop.common";
 import { Engine2d } from "../engine/engine2d";
 // Objects
 import ImageObject from "../objects/image.object";
-import PiecePuzzleObject from "../objects/piecepuzzle.object";
+import PiecePuzzleTool from "../objects/piecepuzzle.object";
 // UI
 import HtmlUI from "../ui/html.ui";
 
@@ -26,6 +26,7 @@ export default class PuzzleGame {
 
         this.gameStatus = PUZZLE_GAME_STATUS.NONE;
         this.previewInterval = null;
+
 
         // create ImageRendering
         this.image = new ImageObject(this.inputSettings.getImageFile());
@@ -95,7 +96,7 @@ export default class PuzzleGame {
         this.ui.setTime(`End game in: ${TIME_GAME}`);
         this.stage.clear();
         
-        this.pieces = PiecePuzzleObject.createFromImage(this.image, this.inputSettings.getHorizontal(), this.inputSettings.getVertical());
+        this.pieces = PiecePuzzleTool.createFromImage(this.image, this.inputSettings.getHorizontal(), this.inputSettings.getVertical());
         this.stage.addRange(this.pieces);
 
         // Clear touch & piece to move
@@ -118,7 +119,7 @@ export default class PuzzleGame {
                 let pos = 0;
                 for (pos = this.pieces.length-1; pos >= 0; pos--) {
                     const piece = this.pieces[pos];
-                    if (piece.checkColission(this.touchEvent)) {
+                    if (piece.checkTouchColission(this.touchEvent)) {
                         pieceTouched = piece;
                         break;
                     };
@@ -139,6 +140,16 @@ export default class PuzzleGame {
                 }
                 else if (this.touchEvent.isMove() && this.pieceToMove) {
                     this.pieceToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
+
+                    // TODO: Check collision
+                    for (const piece of this.pieces) {
+                        
+                        if(this.pieceToMove.checkPieceCollision(piece)){
+                            // Collision
+                            // TODO: join pieces
+                            console.log("Collision: ", this.pieceToMove, piece);
+                        }
+                    }
                 }
                 else if (this.touchEvent.isUp()) {
 

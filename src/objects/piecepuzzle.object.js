@@ -2,18 +2,13 @@ import { PUZZLE_TABS } from "../const";
 import PiecePuzzleRender from "../render/piecepuzzle.render";
 import TabSetting from "../settings/tab.setting";
 
-export default class PiecePuzzleObject extends PiecePuzzleRender{
-    constructor(img, x,y, imgx, imgy, width, height, tags) {
-        super(img, x, y, imgx, imgy, width, height, tags);
-    }
-
-    // TODO: move logic here
+export default class PiecePuzzleTool{
 
     /**
      * Cut image in pieces and returned a list of PiecePuzzleObject
      * @param {ImageRendering} image
-     * @param {number} horizontal
-     * @param {number} vertical
+     * @param {number} horizontal horizontal/column
+     * @param {number} vertical vertical/row
      * @returns {Array of PiecePuzzleObject} PiecePuzzleObject array
      */
      static createFromImage(image, horizontal, vertical) {
@@ -45,7 +40,7 @@ export default class PiecePuzzleObject extends PiecePuzzleRender{
                     tabs.push(new TabSetting(PUZZLE_TABS.DOWN));
                 }
 
-                data.push(new PiecePuzzleObject(img, randomX, randomY, x * imgW, y * imgH, imgW, imgH, tabs));
+                data.push(new PiecePuzzleRender(img, randomX, randomY, x * imgW, y * imgH, imgW, imgH, tabs, x, y));
             }
         }
 

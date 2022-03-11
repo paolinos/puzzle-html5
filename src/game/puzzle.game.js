@@ -129,9 +129,9 @@ export default class PuzzleGame {
                         // NOTE: this should be in the rendering engine. but we are not taking care about engine. 
                         // Update object to render last
 
-                        // TODO: review  
-                        this.pieces.splice(pos, 1);
-                        this.pieces.push(pieceTouched);
+                        // move rendering order to top
+                        this.stage.removeItem(pieceTouched);
+                        this.stage.addItem(pieceTouched);
 
                         this.pieceToMove = pieceTouched;
 

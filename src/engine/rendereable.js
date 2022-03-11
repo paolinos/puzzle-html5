@@ -14,7 +14,7 @@ export class Rendereable2D {
     }
     
     
-    getId() {
+    get id() {
         return this._id;
     }
 

@@ -9,7 +9,7 @@ export class Engine2d {
     constructor(value){
         this._canvas = null;
         this._context = null;
-        this._items = {};
+        this._items = [];
         this._canvas_rect = null;
 
         this._func = null;
@@ -28,7 +28,7 @@ export class Engine2d {
     addItem(item) {
         if(!(item instanceof Rendereable)) return;
 
-        this._items[item.getId()] = item;
+        this._items.push(item);
     }
 
     addRange(list) {
@@ -42,15 +42,17 @@ export class Engine2d {
     removeItem(item) {
         if(!(item instanceof Rendereable)) return;
 
-        delete this._items[item.getId()];
+        const pos = this._items.findIndex(q => q.id === item.id);
+        if(pos >= 0){
+            this._items.splice(pos, 1)
+        }
     }
 
     addTouchEvent(func){
-        if(!func) return;
+        if(!func || this._func) return;
         
         this._func = func;
 
-        // TODO: add evetns at first render
         this._canvas.addEventListener("mousedown", this._onTouchDown.bind(this), false);
         this._canvas.addEventListener("mousemove", this._onTouchMove.bind(this), false);
         this._canvas.addEventListener("mouseup", this._onTouchUp.bind(this), false);
@@ -68,10 +70,10 @@ export class Engine2d {
 
     render(){
         this.clear();
-        //console.log(Object.keys(this._items));
-        for (const key of  Object.keys(this._items)) {
-            this._items[key].render(this._context);
-        }    
+                
+        for (const piece of this._items) {
+            piece.render(this._context);
+        }
     }
 
     clear() {

@@ -1,5 +1,10 @@
 import AutoIncrement from '../common/autoincrement.common';
 
+export const RENDEREABLE_TYPE = {
+    GROUP : 'group',
+    PIECE : 'piece'
+}
+
 /**
  * Base rendereable object
  */
@@ -8,14 +13,20 @@ export class Rendereable2D {
     _visible = true;
     _x = 0;
     _y = 0;
+    _type = '';
     
-    constructor(){
+    constructor(type){
+        this._type = type;
         this._id = AutoIncrement.getId();
     }
     
     
     get id() {
         return this._id;
+    }
+    
+    get type() {
+        return this._type;
     }
 
     get visible() {

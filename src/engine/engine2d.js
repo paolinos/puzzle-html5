@@ -48,6 +48,10 @@ export class Engine2d {
         }
     }
 
+    get items(){
+        return this._items;
+    }
+
     addTouchEvent(func){
         if(!func || this._func) return;
         

@@ -1,15 +1,16 @@
 import { PUZZLE_TABS } from "../const";
+import { GroupRender } from "../render/piece.group.render";
 import PiecePuzzleRender from "../render/piecepuzzle.render";
 import TabSetting from "../settings/tab.setting";
 
 export default class PiecePuzzleTool{
 
     /**
-     * Cut image in pieces and returned a list of PiecePuzzleObject
+     * Cut image in pieces and return a list of GroupRender
      * @param {ImageRendering} image
      * @param {number} horizontal horizontal/column
      * @param {number} vertical vertical/row
-     * @returns {Array of PiecePuzzleObject} PiecePuzzleObject array
+     * @returns {Array of GroupRender} GroupRender array
      */
      static createFromImage(image, horizontal, vertical) {
         
@@ -40,7 +41,9 @@ export default class PiecePuzzleTool{
                     tabs.push(new TabSetting(PUZZLE_TABS.DOWN));
                 }
 
-                data.push(new PiecePuzzleRender(img, randomX, randomY, x * imgW, y * imgH, imgW, imgH, tabs, x, y));
+                const group = new GroupRender([new PiecePuzzleRender(img, 0, 0, x * imgW, y * imgH, imgW, imgH, tabs, x, y)]);
+                group.setPos(randomX, randomY);
+                data.push(group);
             }
         }
 

@@ -1,5 +1,5 @@
 import { PUZZLE_TABS } from "../const";
-import {Rendereable2D} from "../engine/rendereable";
+import {Rendereable2D, RENDEREABLE_TYPE} from "../engine/rendereable";
 
 // TODO: Review,Clean,Refactor this
 
@@ -16,7 +16,7 @@ export default class PiecePuzzleRender extends Rendereable2D {
      * @param {array of Tabs} tabs tabs to each position to create
      */
     constructor(img, x, y, imgx, imgy, width, height, tabs, row, column) {
-        super();
+        super(RENDEREABLE_TYPE.PIECE);
 
         this.img = img;
 
@@ -27,20 +27,14 @@ export default class PiecePuzzleRender extends Rendereable2D {
         // Rendering settings
         this.imgx = imgx;
         this.imgy = imgy;
-        this.width = width;
-        this.height = height;
+        this._width = width;
+        this._height = height;
 
         this.tabs = tabs || [];
 
         this._row = row;
         this._column = column;
         
-
-        // Drag & Drop functionality
-        this.drag_drop = false;
-        this.drag_drop_start_x = 0;
-        this.drag_drop_start_y = 0;
-
         this._init();
     }
 
@@ -49,6 +43,14 @@ export default class PiecePuzzleRender extends Rendereable2D {
     }
     get row(){
         return this._row;
+    }
+
+    get width(){
+        return this._width;
+    }
+
+    get height(){
+        return this._height;
     }
 
     /**
@@ -86,16 +88,17 @@ export default class PiecePuzzleRender extends Rendereable2D {
         if (this.imgy - this.tabSizeH > 0) {
             this.dyDiff = this.tabSizeH;            
         }
-
+        
         this.sx = this.imgx - this.dxDiff;
         this.sy = this.imgy - this.dyDiff;
-        this.updateDifference();
-        
+
         this.sw = (this.sx + this.width + this.tabSizeW < this.img.width ? this.width + this.tabSizeW : this.width) + this.dxDiff;
         this.sh = (this.sy + this.height + this.tabSizeH < this.img.height ? this.height + this.tabSizeH : this.height) + this.dyDiff;
+
+        this._updateDifference();
     }
 
-    updateDifference() {
+    _updateDifference() {
         this.dx = this.x - this.dxDiff;
         this.dy = this.y - this.dyDiff;
     }
@@ -104,36 +107,14 @@ export default class PiecePuzzleRender extends Rendereable2D {
         this.x = x;
         this.y = y;
 
-
-        this.updateDifference();
-    }
-
-    /**
-     * Set starting Drag & Drop
-     */
-    startDragAndDrop(x,y){
-        this.drag_drop = true;
-
-        this.drag_drop_start_x = this.x - x;
-        this.drag_drop_start_y = this.y - y;
-    }
-
-
-    /**
-     * Stop drag & drop.
-     */
-    clearDragAndDrop() {
-        this.drag_drop = false;
-        this.drag_drop_start_x = 0;
-        this.drag_drop_start_y = 0;
+        this._updateDifference();
     }
 
 
     render(ctx) {
-        // TODO: Fix drag&drop differences of positions
         // Get calculation values
-        const x = this.x//  + this.drag_drop_start_x;
-        const y = this.y//  + this.drag_drop_start_y;
+        const x = this.x;
+        const y = this.y;
 
         const toX = x + this.width;
         const toY = y + this.height;
@@ -209,39 +190,5 @@ export default class PiecePuzzleRender extends Rendereable2D {
         ctx.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.sw, this.sh);
 
         ctx.restore();
-    }
-
-    /**
-     * Check Touch collision, to know if we are touching the piece
-     * @param {TouchPosition} touchPos 
-     * @returns {boolean}
-     */
-     checkTouchColission(touchPos) {
-        return (
-            touchPos.getX() >= this.x && touchPos.getX() <= this.x + this.width &&
-            touchPos.getY() >= this.y && touchPos.getY() <= this.y + this.height
-        )
-    }
-
-    /**
-     * Check Collision between Pieces
-     * 
-     * @param {PiecePuzzleRender} piece 
-     * @returns {boolean}
-     */
-    checkPieceCollision(piece){
-        if(
-            ((this.row + 1 === piece.row || this.row - 1 === piece.row) && this.column === piece.column) || 
-            ((this.column + 1 === piece.column || this.column - 1 === piece.column ) && this.row === piece.row)
-        ){
-            // check collision
-            return (
-                piece.x < this.x + this.width &&
-                piece.x + piece.width > this.x &&
-                piece.y < this.y + this.height &&
-                piece.height + piece.y > this.y
-            )
-        }
-        return false;
     }
 }

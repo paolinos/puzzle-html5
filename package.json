@@ -1,13 +1,10 @@
 {
   "name": "puzzle-html5",
   "version": "1.0.0",
-  "description": "This was a game that I made more than year ago. So I clean a bit the code and put in a better way.",
-  "main": "./src/index.js",
+  "description": "Canvas puzzle",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "webpack-dev-server --mode=development --config ./webpack.config.js",
+    "start": "webpack-dev-server --mode=development --config ./webpack.config.js",
     "start:build": "webpack --watch --mode=production",
-    "start": "webpack --mode=development",
     "build": "webpack --mode=production"
   },
   "repository": {

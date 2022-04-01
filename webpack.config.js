@@ -16,8 +16,8 @@ module.exports = {
     entry: './src/index.js',
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'My App',
-            template: './src/index.html',
+            title: 'Puzzle Game',
+            template: './public/index.html',
             hash: true,
             inject: 'body'
         })
@@ -27,4 +27,12 @@ module.exports = {
         filename: 'bundle.js',
 
     },
+    devServer: {
+        static: {
+          directory: path.join(__dirname, 'dist'),
+        },
+        compress: true,
+        hot: true,
+        port: 8080,
+      }
 };

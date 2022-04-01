@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+
+    <style>
+        /*      // TODO: move this to css      */
+        html,body{
+            margin: 0em;
+            padding: 0;
+        }
+        .row .column{
+            display: inline-block;
+        }
+        .row .column-label{
+            width: 200px;
+        }
+        .row .column-label label{
+            width: 100%;
+        }
+        .row .column-input{
+            width: 300px;
+        }
+        .row .column-input-large{
+            width: 400px;
+        }
+
+        .game{
+            width: 1024px;
+            height: 768px;
+            position: relative;
+        }
+
+        .area{
+            /*position: absolute;*/
+        }
+        #drawArea{
+            border: solid 2px #4d3333;
+        }
+        .time-area{
+            width: 100%;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="settings">
+        <div class="row">
+            <div class="column column-label"><label>Horizontal Cuts:</label></div>
+            <div class="column column-input"><input id="horizontal-input" type="number" value="2" min="2" max="20"></div>
+            <div class="column column-label"><label>Vertical Cuts:</label></div>
+            <div class="column column-input"><input id="vertical-input" type="number" value="2" min="2" max="20"></div>
+        </div>
+        <div class="row">
+            <div class="column column-label"><label>Image Source :</label></div>
+            <div class="column column-input-large"><input type="file" id="imageSrc"></div>
+            <div class="column column-btn"><button id="startBtn">Start</button></div>
+        </div>
+    </div>
+    <div class="game">
+        <div class="area time-area" id="time">{{TIME}}</div>
+        <canvas class="area" id="drawArea" width="1024" height="768"></canvas>
+    </div>
+</body>
+</html>

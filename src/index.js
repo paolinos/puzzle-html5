@@ -1,5 +1,5 @@
 import InputSettings from "./input.settings";
-import PuzzleGame from "./puzzle.game";
+import PuzzleGame from "./game/puzzle.game";
 
 const onInit = async () => {
 

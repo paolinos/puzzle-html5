@@ -1,5 +1,5 @@
-const MIN_VALUE = 3;
-const FILE_LENGTH = 5;
+import { VALIDATION_INPUT_FILE_LENGTH, VALIDATION_INPUT_MIN_VALUE } from "./const";
+
 
 export class InputData {
     constructor(file, horizontal, vertical) {
@@ -61,7 +61,7 @@ export default class InputSettings {
         // TODO: validation
         const h = parseInt(this.horizontalInput.value);
         const v = parseInt(this.verticalInput.value);
-        return h >= MIN_VALUE && v >= MIN_VALUE && this.file.value.length > FILE_LENGTH
+        return h >= VALIDATION_INPUT_MIN_VALUE && v >= VALIDATION_INPUT_MIN_VALUE && this.file.value.length > VALIDATION_INPUT_FILE_LENGTH
     }
 
     getInput() {

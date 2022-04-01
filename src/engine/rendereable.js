@@ -1,6 +1,7 @@
 import AutoIncrement from '../common/autoincrement.common';
 
 export const RENDEREABLE_TYPE = {
+    CONTAINER : 'container',
     GROUP : 'group',
     PIECE : 'piece'
 }

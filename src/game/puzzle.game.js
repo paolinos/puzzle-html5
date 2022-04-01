@@ -19,6 +19,7 @@ const timer = new TimeLoop();
  */
 export default class PuzzleGame {
     constructor(canvasId, inputSettings) {
+
         this.stage = new Engine2d(canvasId);
 
         this.inputSettings = inputSettings; // as InputData;
@@ -96,95 +97,88 @@ export default class PuzzleGame {
         this.ui.setTime(`End game in: ${TIME_GAME}`);
         this.stage.clear();
         
-        this.pieces = PiecePuzzleTool.createFromImage(this.image, this.inputSettings.getHorizontal(), this.inputSettings.getVertical());
-        this.stage.addRange(this.pieces);
+        this.stage.addRange(
+            PiecePuzzleTool.createFromImage(
+                this.image, 
+                this.inputSettings.getHorizontal(), 
+                this.inputSettings.getVertical()
+            )
+        );
 
         // Clear touch & piece to move
         this.touchEvent = null;
-        this.pieceToMove = null;
+        this.containerToMove = null;
         timer.start();
     }
 
     /**
      * On update game
      */
-    onUpdateGame() {
-        try {
-            // TODO: review this logic
-            if (this.touchEvent) {
+    onUpdateGame(){
+        this.stage.clear();
+        
+        if (this.touchEvent){
 
-                // TODO: this should be part of the update of the Stage, and emit event of Touch
-                // Identify item that is touching
-                let pieceTouched = null;
-                let pos = 0;
-                for (pos = this.pieces.length - 1; pos >= 0; pos--) {
-                    const piece = this.pieces[pos];
-                    if (piece.checkTouchColission(this.touchEvent)) {
-                        pieceTouched = piece;
+            if (this.touchEvent.isDown()) {
+                // check collision
+                for (let pos = this.stage.items.length - 1; pos >= 0; pos--) {
+                    const item = this.stage.items[pos];
+
+                    if (item.checkTouchColission(this.touchEvent)) {
+                        this.containerToMove = item;
                         break;
                     };
                 }
-                
-                if (this.touchEvent.isDown()) {
-                    if (pieceTouched) {
-                        // NOTE: this should be in the rendering engine. but we are not taking care about engine. 
-                        // Update object to render last
-                        
-                        // TODO: review this remove/add part.
 
-                        // update position
-                        this.pieces.splice(pos, 1);
-                        this.pieces.push(pieceTouched);
-
-                        // move rendering order to top
-                        this.stage.removeItem(pieceTouched);
-                        this.stage.addItem(pieceTouched);
-
-                        this.pieceToMove = pieceTouched;
-
-                        this.pieceToMove.startDragAndDrop(this.touchEvent.getX(), this.touchEvent.getY());
-                    }
+                if(this.containerToMove){
+                    this.containerToMove.startDragAndDrop(this.touchEvent.getX(), this.touchEvent.getY());
                 }
-                else if (this.touchEvent.isMove() && this.pieceToMove) {
-                    this.pieceToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
 
-                    // TODO: Check collision
-                    for (const piece of this.pieces) {
+            }
+            else if (this.touchEvent.isMove() && this.containerToMove){
+                this.containerToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
+
+                for (const item of this.stage.items) {
+                    if(item.id === this.containerToMove.id) continue;
+
+                    const resColl = item.checkContainerCollision(this.containerToMove);
+                    if(resColl.collision){
+                        this.containerToMove.clearDragAndDrop();
+
+                        // Remove tags collision
+                        resColl.data.other.piece.tagInfo.removeTag(resColl.data.current.piece.tagInfo.name);
+                        resColl.data.current.piece.tagInfo.removeTag(resColl.data.other.piece.tagInfo.name);
                         
-                        if(this.pieceToMove.checkPieceCollision(piece)){
-                            // Collision
-                            // TODO: join pieces
-                            console.log("Collision: ", this.pieceToMove, piece);
-                        }
-                    }
-                }
-                else if (this.touchEvent.isUp()) {
+                        item.mergeGroup(this.containerToMove);
 
-                    if (this.pieceToMove) {
-                        // Clear touch differences
-                        this.pieceToMove.clearDragAndDrop();
+                        this.stage.removeItem(this.containerToMove);
+
+                        this.containerToMove = null;
+                        break
                     }
-                    this.pieceToMove = null;
                 }
             }
-            this.touchEvent = null;
-            
-            // Update UI Time
-            const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
-            this.ui.setTime(`End game in: ${TIME_GAME - currentTime}`);
-            
-            // Render
-            this.stage.render();
-
-            if (currentTime >= TIME_GAME) {
-
-                this.ui.setTime(`GAME OVER`);
-                timer.stop();
+            else if (this.touchEvent.isUp() ){
+                if (this.containerToMove) {
+                    this.containerToMove.clearDragAndDrop();
+                }
+                this.containerToMove = null;
             }
+        }
+        
 
-        } catch (error) {
-            console.log(error);
-            
+        // Clear touch
+        this.touchEvent = null;
+
+        // Update UI Time
+        const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
+        this.ui.setTime(`End game in: ${TIME_GAME - currentTime}`);
+
+        this.stage.render();
+
+        if (currentTime >= TIME_GAME) {
+
+            this.ui.setTime(`GAME OVER`);
             timer.stop();
         }
     }

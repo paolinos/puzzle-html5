@@ -1,7 +1,8 @@
 import { PUZZLE_TABS } from "../const";
-import { GroupRender } from "../render/piece.group.render";
-import PiecePuzzleRender from "../render/piecepuzzle.render";
-import TabSetting from "../settings/tab.setting";
+import { ImagePosition } from "../models/imagePosition";
+import { TagInfo } from "../models/tagInfo";
+import { Container } from "../render/container.render";
+import { PieceRender } from "../render/piece.render";
 
 export default class PiecePuzzleTool{
 
@@ -12,41 +13,67 @@ export default class PiecePuzzleTool{
      * @param {number} vertical vertical/row
      * @returns {Array of GroupRender} GroupRender array
      */
-     static createFromImage(image, horizontal, vertical) {
-        
-        // Get real image
+    static createFromImage(image, horizontal, vertical) {
+        const data = [];
+
         const img = image.getImg();
-        // Calculate piece width & height
         const imgW = img.width / horizontal;
         const imgH = img.height / vertical;
 
-        // Create each piece, with the dimentions
-        const data = [];
         for (let x = 0; x < horizontal; x++) {
             for (let y = 0; y < vertical; y++) {
-                const randomX = x * imgW;
-                const randomY = y * imgH;
+                // TODO: Set random positions
+                const tmpX = x * imgW;
+                const tmpY = y * imgH;
 
-                let tabs = [];
-                if (x !== 0) {
-                    tabs.push(new TabSetting(PUZZLE_TABS.LEFT, true));
+                const name = (x+1) + (horizontal*y);
+                const tags = [];
+                const tagCollision = {};
+                
+                if(x > 0){
+                    const tmp = name - 1;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.LEFT] = {
+                        value: tmp,
+                        isInternal: () => true
+                    };
                 }
-                if (y !== 0) {
-                    tabs.push(new TabSetting(PUZZLE_TABS.UP, true));
-                }
-                if (x + 1 < horizontal) {
-                    tabs.push(new TabSetting(PUZZLE_TABS.RIGHT));
-                }
-                if (y + 1 < vertical) {
-                    tabs.push(new TabSetting(PUZZLE_TABS.DOWN));
+                if(x+1 < horizontal){
+                    const tmp = name + 1;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.RIGHT] = {
+                        value: tmp,
+                        isInternal: () => false
+                    };
                 }
 
-                const group = new GroupRender([new PiecePuzzleRender(img, 0, 0, x * imgW, y * imgH, imgW, imgH, tabs, x, y)]);
-                group.setPos(randomX, randomY);
-                data.push(group);
+                if(y > 0){
+                    const tmp = name - vertical;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.UP] = {
+                        value: tmp,
+                        isInternal: () => true
+                    }
+                }
+                if(y+1 < vertical){
+                    const tmp = name + vertical;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.DOWN] = {
+                        value: tmp,
+                        isInternal: () => false
+                    };
+                }
+
+                const tmpArea = new PieceRender(img, 
+                    new ImagePosition(tmpX,tmpY, imgW, imgH), 
+                    new ImagePosition(tmpX,tmpY, imgW, imgH),
+                    new TagInfo(name, tags, tagCollision)
+                );
+                data.push(new Container([tmpArea]));
             }
         }
 
         return data;
     }
+
 }

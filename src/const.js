@@ -19,6 +19,13 @@ export const PUZZLE_TABS = {
     RIGHT: "tab-right"
 };
 
+export const SIDES = {
+    TOP : "top",
+    BOTTOM: "bottom",
+    LEFT: "left",
+    RIGHT: "right"
+}
+
 // Validation Const
 export const VALIDATION_INPUT_MIN_VALUE = 2;
 export const VALIDATION_INPUT_FILE_LENGTH = 5;

@@ -1,5 +1,4 @@
 import { PUZZLE_GAME_STATUS, TIME_GAME, TO_SECONDS } from "../const";
-import TimeLoop from "../common/timeloop.common";
 import { Engine2d } from "../engine/engine2d";
 // Objects
 import ImageObject from "../objects/image.object";
@@ -7,11 +6,6 @@ import PiecePuzzleTool from "../objects/piecepuzzle.object";
 // UI
 import HtmlUI from "../ui/html.ui";
 
-// TODO: change this
-const timer = new TimeLoop();
-
-
-// TODO: Refactor, review
 
 /**
  * Jigsaw Puzzle
@@ -26,24 +20,24 @@ export default class PuzzleGame {
         this.ui = new HtmlUI();
 
         this.gameStatus = PUZZLE_GAME_STATUS.NONE;
-        this.previewInterval = null;
 
 
         // create ImageRendering
         this.image = new ImageObject(this.inputSettings.getImageFile());
         this.gameStatus = PUZZLE_GAME_STATUS.LOADING_IMAGE;
         this.image.onLoadComplete(() => {
-            if (this.previewInterval === PUZZLE_GAME_STATUS.PRE_PREVIEW) {
+            if (this.gameStatus === PUZZLE_GAME_STATUS.PRE_PREVIEW) {
                 this.start();
             }
         });
 
-        // TODO: is this the best place?
+        // Note: maybe not the bes place. Event should be added and remove each time, but just a test ;)
         this.touchEvent = null;
         this.stage.addTouchEvent((e) => {
+            if(this.gameStatus !== PUZZLE_GAME_STATUS.PLAYING) return;
+
             this.touchEvent = e;
         })
-        timer.addEventOnFrame(this.onUpdateGame.bind(this));
     }
 
     /**
@@ -58,7 +52,7 @@ export default class PuzzleGame {
         if (this.image.isReady()) {
             this.previewImage();
         } else {
-            this.previewInterval = PUZZLE_GAME_STATUS.PRE_PREVIEW;
+            this.gameStatus = PUZZLE_GAME_STATUS.PRE_PREVIEW;
         }
     }
 
@@ -66,7 +60,7 @@ export default class PuzzleGame {
      * Start previwing the image and after X seconds will start the game
      */
     previewImage() {
-        this.previewInterval = PUZZLE_GAME_STATUS.PREVIEWING;
+        this.gameStatus = PUZZLE_GAME_STATUS.PREVIEWING;
         let counter = 5;
         this.ui.setTime(`Starting in: ${counter}`);
 
@@ -83,16 +77,15 @@ export default class PuzzleGame {
                 
                 this.stage.removeItem(this.image);
 
-                this.runGame();
+                this.createGame();
             }
         }, 1000)
     }
 
     /**
-     * Run the game
+     * Create Game pieces
      */
-    runGame() {
-        this.previewInterval = PUZZLE_GAME_STATUS.PLAYING;
+    createGame() {
         this.timeStart = Date.now();
         this.ui.setTime(`End game in: ${TIME_GAME}`);
         this.stage.clear();
@@ -108,7 +101,9 @@ export default class PuzzleGame {
         // Clear touch & piece to move
         this.touchEvent = null;
         this.containerToMove = null;
-        timer.start();
+
+        this.gameStatus = PUZZLE_GAME_STATUS.PLAYING;
+        this.onUpdateGame();
     }
 
     /**
@@ -133,7 +128,6 @@ export default class PuzzleGame {
                 if(this.containerToMove){
                     this.containerToMove.startDragAndDrop(this.touchEvent.getX(), this.touchEvent.getY());
                 }
-
             }
             else if (this.touchEvent.isMove() && this.containerToMove){
                 this.containerToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
@@ -166,7 +160,6 @@ export default class PuzzleGame {
             }
         }
         
-
         // Clear touch
         this.touchEvent = null;
 
@@ -174,16 +167,27 @@ export default class PuzzleGame {
         const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
         this.ui.setTime(`End game in: ${TIME_GAME - currentTime}`);
 
-        this.stage.render();
+        if(this.stage.items.length === 1){
+            this.ui.setTime('Well done');
+            this.stage.items[0].setPos(0,0);
 
-        if (currentTime >= TIME_GAME) {
-
-            this.ui.setTime(`GAME OVER`);
-            timer.stop();
+            this.gameStatus = PUZZLE_GAME_STATUS.END;
         }
+        else if (currentTime >= TIME_GAME ) {
+            this.ui.setTime('GAME OVER');
+
+            this.gameStatus = PUZZLE_GAME_STATUS.END;
+        }
+
+        this.stage.render();
+        
+        if(this.gameStatus === PUZZLE_GAME_STATUS.END) return;
+
+        requestAnimationFrame(this.onUpdateGame.bind(this));
     }
 
     stop() {
+        this.gameStatus = PUZZLE_GAME_STATUS.END;
         this.stage.clear();
     }
 }

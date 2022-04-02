@@ -4,7 +4,8 @@ export const PUZZLE_GAME_STATUS = {
     LOADING_IMAGE: 10,
     PRE_PREVIEW: 15,
     PREVIEWING: 20,
-    PLAYING: 30
+    PLAYING: 30,
+    END: 40
 }
 
 

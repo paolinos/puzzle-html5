@@ -11,13 +11,14 @@ import HtmlUI from "../ui/html.ui";
  * Jigsaw Puzzle
  */
 export default class PuzzleGame {
-    constructor(canvasId) {
-        this.stage = new Engine2d(canvasId);
+    constructor(canvasId, options) {
+        this.stage = new Engine2d(canvasId, options);
 
         this.inputSettings = null;
         this.ui = new HtmlUI();
 
         this.gameStatus = PUZZLE_GAME_STATUS.NONE;
+        this._endFn = null;
 
         // Note: maybe not the best place. Event should be added and remove each time, but just a test ;)
         this.touchEvent = null;
@@ -180,9 +181,17 @@ export default class PuzzleGame {
 
         this.stage.render();
         
-        if(this.gameStatus === PUZZLE_GAME_STATUS.END) return;
+        if(this.gameStatus === PUZZLE_GAME_STATUS.END){
+            this.stage.removeAllItems();
+            if(this._endFn) this._endFn();
+            return;
+        }
 
         requestAnimationFrame(this.onUpdateGame.bind(this));
+    }
+
+    onEnd(fn){
+        this._endFn = fn;
     }
 
     clear() {

@@ -7,7 +7,15 @@ export class GameView extends View{
     constructor(visible=false){
         super(VIEWS.GAME, "game_view", visible);
 
-        this.game = new PuzzleGame("drawArea");
+        const padding =  50;
+        this.game = new PuzzleGame("drawArea", {
+            width: window.innerWidth - padding,
+            height: window.innerHeight - padding
+        });
+
+        this.game.onEnd(() => {
+            if(this._fn) this._fn();
+        })
     }
 
     start(inputSettings){

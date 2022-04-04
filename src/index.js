@@ -1,19 +1,19 @@
-import InputSettings from "./input.settings";
-import PuzzleGame from "./game/puzzle.game";
+import { MainView } from "./views/main.view";
+import { GameView } from "./views/game.view";
 
 const onInit = async () => {
 
-    const settings = new InputSettings();
-    settings.addEventOnStart((success, data) => {
-        if (!success) {
-            alert(data);
-            return;
-        }
+    const mainView = new MainView();
+    const gameView = new GameView();
 
-        
-        const game = new PuzzleGame("drawArea", data);
-        game.start();
+    mainView.onNext((data) => {        
+        mainView.clear();
+        gameView.start(data);
+    });
 
+    gameView.onNext(() => {
+        gameView.clear();
+        mainView.start();
     });
 }   
 onInit();

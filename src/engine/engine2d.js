@@ -6,7 +6,7 @@ import { TOUCH_TYPE, TouchPosition } from './touch.event';
  */
 export class Engine2d {
 
-    constructor(value){
+    constructor(value, options=null){
         this._canvas = null;
         this._context = null;
         this._items = [];
@@ -20,8 +20,12 @@ export class Engine2d {
             this._canvas = document.getElementById(value);
         }
 
-        this._context = this._canvas.getContext('2d');
+        if(options){
+            if(options.width) this._canvas.width = options.width;
+            if(options.height) this._canvas.height = options.height;
+        }
 
+        this._context = this._canvas.getContext('2d');
         this._canvas_rect = this._canvas.getBoundingClientRect();
     }
 
@@ -46,6 +50,10 @@ export class Engine2d {
         if(pos >= 0){
             this._items.splice(pos, 1)
         }
+    }
+
+    removeAllItems(){
+        this._items = [];
     }
 
     get items(){

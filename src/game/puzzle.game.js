@@ -9,35 +9,34 @@ import HtmlUI from "../ui/html.ui";
 
 /**
  * Jigsaw Puzzle
- // TODO: create layouts and update it
  */
 export default class PuzzleGame {
-    constructor(canvasId, inputSettings) {
-
+    constructor(canvasId) {
         this.stage = new Engine2d(canvasId);
 
-        this.inputSettings = inputSettings; // as InputData;
+        this.inputSettings = null;
         this.ui = new HtmlUI();
 
         this.gameStatus = PUZZLE_GAME_STATUS.NONE;
 
-
-        // create ImageRendering
-        this.image = new ImageObject(this.inputSettings.getImageFile());
-        this.gameStatus = PUZZLE_GAME_STATUS.LOADING_IMAGE;
-        this.image.onLoadComplete(() => {
-            if (this.gameStatus === PUZZLE_GAME_STATUS.PRE_PREVIEW) {
-                this.start();
-            }
-        });
-
-        // Note: maybe not the bes place. Event should be added and remove each time, but just a test ;)
+        // Note: maybe not the best place. Event should be added and remove each time, but just a test ;)
         this.touchEvent = null;
         this.stage.addTouchEvent((e) => {
             if(this.gameStatus !== PUZZLE_GAME_STATUS.PLAYING) return;
 
             this.touchEvent = e;
         })
+    }
+
+    load(inputSettings){
+        // create ImageRendering
+        this.inputSettings = inputSettings;
+
+        this.image = new ImageObject(this.inputSettings.image);
+        this.gameStatus = PUZZLE_GAME_STATUS.LOADING_IMAGE;
+        this.image.onLoadComplete(() => {
+            this.start();
+        });
     }
 
     /**
@@ -93,8 +92,8 @@ export default class PuzzleGame {
         this.stage.addRange(
             PiecePuzzleTool.createFromImage(
                 this.image, 
-                this.inputSettings.getHorizontal(), 
-                this.inputSettings.getVertical()
+                this.inputSettings.horizontal, 
+                this.inputSettings.vertical
             )
         );
 
@@ -186,8 +185,12 @@ export default class PuzzleGame {
         requestAnimationFrame(this.onUpdateGame.bind(this));
     }
 
-    stop() {
-        this.gameStatus = PUZZLE_GAME_STATUS.END;
+    clear() {
+        this.gameStatus = PUZZLE_GAME_STATUS.NONE;
         this.stage.clear();
+
+        this.image = null;
+        this.inputSettings = null;
+        this.touchEvent = null;
     }
 }

@@ -1,7 +1,7 @@
 import { PUZZLE_TABS } from "../../const";
 import { Rendereable2D, RENDEREABLE_TYPE } from "../../engine/rendereable";
-import { ImagePosition } from "../../models/imagePosition";
-import { TagInfo } from "../../models/tagInfo";
+import { ImagePosition } from "../models/imagePosition";
+import { TagInfo } from "../models/tagInfo";
 
 export class PieceRender extends Rendereable2D{
 

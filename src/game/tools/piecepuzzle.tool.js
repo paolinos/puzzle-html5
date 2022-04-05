@@ -1,6 +1,6 @@
 import { PUZZLE_TABS } from "../../const";
-import { ImagePosition } from "../../models/imagePosition";
-import { TagInfo } from "../../models/tagInfo";
+import { ImagePosition } from "../models/imagePosition";
+import { TagInfo } from "../models/tagInfo";
 import { Container } from "../render/container.render";
 import { PieceRender } from "../render/piece.render";
 

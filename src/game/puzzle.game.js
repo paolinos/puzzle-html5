@@ -1,8 +1,8 @@
 import { PUZZLE_GAME_STATUS, TIME_GAME, TO_SECONDS } from "../const";
 import { Engine2d } from "../engine/engine2d";
 // Objects
-import ImageObject from "./objects/image.object";
-import PiecePuzzleTool from "./objects/piecepuzzle.object";
+import PiecePuzzleTool from "./tools/piecepuzzle.tool";
+import ImageRender from "./render/image.render";
 // UI
 import HtmlUI from "./ui/html.ui";
 
@@ -33,7 +33,7 @@ export default class PuzzleGame {
         // create ImageRendering
         this.inputSettings = inputSettings;
 
-        this.image = new ImageObject(this.inputSettings.image);
+        this.image = new ImageRender(this.inputSettings.image);
         this.gameStatus = PUZZLE_GAME_STATUS.LOADING_IMAGE;
         this.image.onLoadComplete(() => {
             this.start();

@@ -1,5 +1,5 @@
 import { BoxDragDrop } from "./boxDragDrop.render";
-import { Rendereable2D, RENDEREABLE_TYPE } from "../engine/rendereable";
+import { Rendereable2D, RENDEREABLE_TYPE } from "../../engine/rendereable";
 
 export class Container extends BoxDragDrop {
     _pieces = [];

@@ -1,4 +1,4 @@
-import { Rendereable2D } from "../engine/rendereable";
+import { Rendereable2D } from "../../engine/rendereable";
 
 /**
  * abstract class.

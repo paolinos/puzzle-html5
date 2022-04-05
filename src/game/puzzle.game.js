@@ -1,10 +1,10 @@
 import { PUZZLE_GAME_STATUS, TIME_GAME, TO_SECONDS } from "../const";
 import { Engine2d } from "../engine/engine2d";
 // Objects
-import ImageObject from "../objects/image.object";
-import PiecePuzzleTool from "../objects/piecepuzzle.object";
+import ImageObject from "./objects/image.object";
+import PiecePuzzleTool from "./objects/piecepuzzle.object";
 // UI
-import HtmlUI from "../ui/html.ui";
+import HtmlUI from "./ui/html.ui";
 
 
 /**

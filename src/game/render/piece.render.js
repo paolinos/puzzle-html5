@@ -1,7 +1,7 @@
-import { PUZZLE_TABS } from "../const";
-import { Rendereable2D, RENDEREABLE_TYPE } from "../engine/rendereable";
-import { ImagePosition } from "../models/imagePosition";
-import { TagInfo } from "../models/tagInfo";
+import { PUZZLE_TABS } from "../../const";
+import { Rendereable2D, RENDEREABLE_TYPE } from "../../engine/rendereable";
+import { ImagePosition } from "../../models/imagePosition";
+import { TagInfo } from "../../models/tagInfo";
 
 export class PieceRender extends Rendereable2D{
 
@@ -70,7 +70,7 @@ export class PieceRender extends Rendereable2D{
         ctx.moveTo(x, y);
 
         // TOP Line
-        tab = this.tagInfo.tagCollision[PUZZLE_TABS.UP];
+        tab = this.tagInfo.getTagCollision(PUZZLE_TABS.UP);
         if (tab) {
             const multiple = tab.isInternal() ? 1 : -1;
             // Inside tab
@@ -82,7 +82,7 @@ export class PieceRender extends Rendereable2D{
         
 
         // Right Line
-        tab = this.tagInfo.tagCollision[PUZZLE_TABS.RIGHT];
+        tab = this.tagInfo.getTagCollision(PUZZLE_TABS.RIGHT);
         if (tab) {
             const multiple = tab.isInternal() ? -1 : 1;
             // Inside tab
@@ -94,7 +94,7 @@ export class PieceRender extends Rendereable2D{
         
         
         // Bottom line
-        tab = this.tagInfo.tagCollision[PUZZLE_TABS.DOWN];
+        tab = this.tagInfo.getTagCollision(PUZZLE_TABS.DOWN);
         if (tab) {
             const multiple = tab.isInternal() ? -1 : 1;
             // Inside tab
@@ -106,7 +106,7 @@ export class PieceRender extends Rendereable2D{
         
 
         // Left line
-        tab = this.tagInfo.tagCollision[PUZZLE_TABS.LEFT];
+        tab = this.tagInfo.getTagCollision(PUZZLE_TABS.LEFT);
         if (tab) {
             const multiple = tab.isInternal() ? 1 : -1;
             // Inside tab

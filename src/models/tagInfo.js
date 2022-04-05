@@ -5,10 +5,10 @@ export class TagInfo{
         this.tagCollision = tagCollision;
     }
 
-    /*
+    
     getTagCollision(value){
         return this.tagCollision[value];
-    }*/
+    }
 
     removeTag(value){
         const pos = this.tags.indexOf(value);

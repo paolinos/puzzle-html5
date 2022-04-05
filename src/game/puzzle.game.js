@@ -1,11 +1,15 @@
 import { PUZZLE_GAME_STATUS, TIME_GAME, TO_SECONDS } from "../const";
 import { Engine2d } from "../engine/engine2d";
-// Objects
-import ImageObject from "../objects/image.object";
-import PiecePuzzleTool from "../objects/piecepuzzle.object";
-// UI
-import HtmlUI from "../ui/html.ui";
+import PiecePuzzleTool from "./tools/piecepuzzle.tool";
+import ImageRender from "./render/image.render";
 
+/**
+ * Game events for onEvent
+ */
+export const GAME_EVENTS = {
+    END: "game-end",
+    UPDATE_UI: "game-update-ui"
+}
 
 /**
  * Jigsaw Puzzle
@@ -15,10 +19,9 @@ export default class PuzzleGame {
         this.stage = new Engine2d(canvasId, options);
 
         this.inputSettings = null;
-        this.ui = new HtmlUI();
+        this._onEventfn = null;
 
         this.gameStatus = PUZZLE_GAME_STATUS.NONE;
-        this._endFn = null;
 
         // Note: maybe not the best place. Event should be added and remove each time, but just a test ;)
         this.touchEvent = null;
@@ -33,11 +36,26 @@ export default class PuzzleGame {
         // create ImageRendering
         this.inputSettings = inputSettings;
 
-        this.image = new ImageObject(this.inputSettings.image);
+        this.image = new ImageRender(this.inputSettings.image);
         this.gameStatus = PUZZLE_GAME_STATUS.LOADING_IMAGE;
         this.image.onLoadComplete(() => {
             this.start();
         });
+    }
+
+    /**
+     * NOTE: We already know that we could use EventEmitter. but we use simple callback. 
+     * @param {function} fn callback 
+     */
+    onEvent(fn){
+        this._onEventfn = fn;
+    }
+
+
+    _emitEvent(name, data={}){
+        if(this._onEventfn){
+            this._onEventfn(name, data)
+        }
     }
 
     /**
@@ -62,24 +80,25 @@ export default class PuzzleGame {
     previewImage() {
         this.gameStatus = PUZZLE_GAME_STATUS.PREVIEWING;
         let counter = 5;
-        this.ui.setTime(`Starting in: ${counter}`);
+
+        this._emitEvent(GAME_EVENTS.UPDATE_UI, `Starting in: ${counter}`);
 
         this.stage.addItem(this.image);
         this.stage.render();
         
 
-        clearInterval(this.previewInterval);
-        this.previewInterval = setInterval(() => {
+        let previewWait = setInterval(() => {
             counter--;
-            this.ui.setTime(`Starting in: ${counter}`);
+            
+            this._emitEvent(GAME_EVENTS.UPDATE_UI,`Starting in: ${counter}`);
             if (counter <= 0) {
-                clearInterval(this.previewInterval);
+                clearInterval(previewWait);
                 
                 this.stage.removeItem(this.image);
 
                 this.createGame();
             }
-        }, 1000)
+        }, 1000);
     }
 
     /**
@@ -87,7 +106,7 @@ export default class PuzzleGame {
      */
     createGame() {
         this.timeStart = Date.now();
-        this.ui.setTime(`End game in: ${TIME_GAME}`);
+        this._emitEvent(GAME_EVENTS.UPDATE_UI,`End game in: ${TIME_GAME}`);
         this.stage.clear();
         
         this.stage.addRange(
@@ -165,16 +184,16 @@ export default class PuzzleGame {
 
         // Update UI Time
         const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
-        this.ui.setTime(`End game in: ${TIME_GAME - currentTime}`);
+        this._emitEvent(GAME_EVENTS.UPDATE_UI, `End game in: ${TIME_GAME - currentTime}`);
 
         if(this.stage.items.length === 1){
-            this.ui.setTime('Well done');
+            this._emitEvent(GAME_EVENTS.UPDATE_UI, 'Well done');
             this.stage.items[0].setPos(0,0);
 
             this.gameStatus = PUZZLE_GAME_STATUS.END;
         }
         else if (currentTime >= TIME_GAME ) {
-            this.ui.setTime('GAME OVER');
+            this._emitEvent(GAME_EVENTS.UPDATE_UI, 'GAME OVER');
 
             this.gameStatus = PUZZLE_GAME_STATUS.END;
         }
@@ -183,15 +202,12 @@ export default class PuzzleGame {
         
         if(this.gameStatus === PUZZLE_GAME_STATUS.END){
             this.stage.removeAllItems();
-            if(this._endFn) this._endFn();
+            
+            this._emitEvent(GAME_EVENTS.END);
             return;
         }
 
         requestAnimationFrame(this.onUpdateGame.bind(this));
-    }
-
-    onEnd(fn){
-        this._endFn = fn;
     }
 
     clear() {

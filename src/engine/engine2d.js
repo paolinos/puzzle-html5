@@ -29,6 +29,14 @@ export class Engine2d {
         this._canvas_rect = this._canvas.getBoundingClientRect();
     }
 
+    get width(){
+        return this._canvas.width;
+    }
+
+    get height(){
+        return this._canvas.height;
+    }
+
     addItem(item) {
         if(!(item instanceof Rendereable)) return;
 

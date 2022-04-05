@@ -113,7 +113,9 @@ export default class PuzzleGame {
             PiecePuzzleTool.createFromImage(
                 this.image, 
                 this.inputSettings.horizontal, 
-                this.inputSettings.vertical
+                this.inputSettings.vertical,
+                this.stage.width,
+                this.stage.height,
             )
         );
 

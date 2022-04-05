@@ -13,18 +13,20 @@ export default class PiecePuzzleTool{
      * @param {number} vertical vertical/row
      * @returns {Array of GroupRender} GroupRender array
      */
-    static createFromImage(image, horizontal, vertical) {
+    static createFromImage(image, horizontal, vertical, maxWidth, maxHeight) {
         const data = [];
 
         const img = image.getImg();
         const imgW = img.width / horizontal;
         const imgH = img.height / vertical;
 
+        maxWidth -= 10;
+        maxHeight -= 10;
+
         for (let x = 0; x < horizontal; x++) {
             for (let y = 0; y < vertical; y++) {
-                // TODO: Set random positions
-                const tmpX = x * imgW;
-                const tmpY = y * imgH;
+                const imgX = x * imgW;
+                const imgY = y * imgH;
 
                 const name = (x+1) + (horizontal*y);
                 const tags = [];
@@ -64,12 +66,19 @@ export default class PiecePuzzleTool{
                     };
                 }
 
-                const tmpArea = new PieceRender(img, 
-                    new ImagePosition(tmpX,tmpY, imgW, imgH), 
-                    new ImagePosition(tmpX,tmpY, imgW, imgH),
-                    new TagInfo(name, tags, tagCollision)
-                );
-                data.push(new Container([tmpArea]));
+                const container = new Container([
+                    new PieceRender(img, 
+                        new ImagePosition(imgX,imgY, imgW, imgH), 
+                        new ImagePosition(imgX,imgY, imgW, imgH),
+                        new TagInfo(name, tags, tagCollision)
+                    )
+                ]);
+
+                // Set random position. PieceRender has an relative position, so we need to convert this.
+                const newX = -imgX + (maxWidth * Math.random());
+                const newY = -imgY + (maxHeight * Math.random());
+                container.setPos(newX,newY);
+                data.push(container);
             }
         }
 

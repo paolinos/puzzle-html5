@@ -134,7 +134,8 @@
             <input class="form-control" type="file" id="imageSrc">
         </div>
         <div class="mb-3">
-            <button id="startBtn" class="btn btn-primary">Start</button>
+            <button id="generateBtn" class="btn btn-primary">Generate pieces to print</button> |
+            <button id="startBtn" class="btn btn-primary">Play Game</button>
         </div>
         <div class="mb-3">
             <div id="error-msg" class="alert alert-danger" role="alert" style="display: none;">
@@ -146,6 +147,13 @@
     <div id="game_view" class="game">
         <div class="area time-area" id="time">{{TIME}}</div>
         <canvas class="area" id="drawArea" width="1024" height="768"></canvas>
+    </div>
+
+    <div id="generator_view" class="game">
+        <div class="area time-area">
+            <button id="printBtn" class="btn btn-primary">Print</button>
+        </div>
+        <canvas class="area" id="generatorArea" width="1920" height="1080"></canvas>
     </div>
 </body>
 </html>

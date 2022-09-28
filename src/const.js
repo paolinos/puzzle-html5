@@ -29,7 +29,8 @@ export const SIDES = {
 
 export const VIEWS = {
     MAIN: "main",
-    GAME: "game"
+    GAME: "game",
+    GENERATOR: "generator"
 }
 
 // Validation Const

@@ -1,7 +1,8 @@
 import { PUZZLE_TABS } from "../../const";
 import { ImagePosition } from "../models/imagePosition";
-import { TagInfo } from "../models/tagInfo";
+import { TagData, TagInfo } from "../models/tagInfo";
 import { Container } from "../render/container.render";
+import ImageRender from "../render/image.render";
 import { PieceRender } from "../render/piece.render";
 
 export default class PiecePuzzleTool{
@@ -13,8 +14,8 @@ export default class PiecePuzzleTool{
      * @param {number} vertical vertical/row
      * @returns {Array of GroupRender} GroupRender array
      */
-    static createFromImage(image, horizontal, vertical, maxWidth, maxHeight) {
-        const data = [];
+    static createFromImage(image:ImageRender, horizontal:number, vertical:number, maxWidth:number, maxHeight:number) {
+        const data:Container[] = [];
 
         const img = image.getImg();
         const imgW = img.width / horizontal;
@@ -29,8 +30,8 @@ export default class PiecePuzzleTool{
                 const imgY = y * imgH;
 
                 const name = (x+1) + (horizontal*y);
-                const tags = [];
-                const tagCollision = {};
+                const tags:number[] = [];
+                const tagCollision:Record<string, TagData> = {};
                 
                 if(x > 0){
                     const tmp = name - 1;
@@ -87,8 +88,8 @@ export default class PiecePuzzleTool{
 
 
     // TODO: refactor here
-    static createPrintableFromImage(image, horizontal, vertical, maxWidth, maxHeight) {
-        const data = [];
+    static createPrintableFromImage(image:ImageRender, horizontal:number, vertical:number) {
+        const data:Container[] = [];
 
         const img = image.getImg();
         const imgW = img.width / horizontal;
@@ -105,8 +106,8 @@ export default class PiecePuzzleTool{
                 const imgY = y * imgH;
 
                 const name = (x+1) + (horizontal*y);
-                const tags = [];
-                const tagCollision = {};
+                const tags:number[] = [];
+                const tagCollision:Record<string, TagData> = {};
                 
                 if(x > 0){
                     const tmp = name - 1;
@@ -154,7 +155,7 @@ export default class PiecePuzzleTool{
 
                 console.log(`imgW * x,imgH * y => x:${x}, y:${y}, ${imgW * x},${imgH * y}`);
 
-                console.log(`container: ${container.width} ${container.height}`);
+                console.log(`container: `, container);
 
                 //totalW += imgW + (x * imgW * 0.15);
                 //totalH += imgH + (y * imgH * 0.20);

@@ -1,12 +1,13 @@
-import {Rendereable2D} from "../../engine/rendereable";
+import {Rendereable2D, RENDEREABLE_TYPE} from "../../engine/rendereable";
 
 export default class ImageRender extends Rendereable2D {
-    constructor(src) {
-        super();
 
-        this.ready = false;
+    private ready:boolean = false;
+    func:(() => void)|undefined = undefined;
+    private readonly img:HTMLImageElement;
 
-        this.func = null;
+    constructor(src:string) {
+        super(RENDEREABLE_TYPE.PIECE);
 
         this.img = new Image();
         this.img.addEventListener("load", () => {
@@ -19,13 +20,13 @@ export default class ImageRender extends Rendereable2D {
         this.img.src = src;
     }
 
-    render(ctx) {
+    render(ctx:CanvasRenderingContext2D):void {
         if (!this.ready) return;
 
         ctx.drawImage(this.img, 0, 0);
     }
 
-    isReady(){
+    isReady():boolean {
         return this.ready;
     }
 
@@ -33,7 +34,7 @@ export default class ImageRender extends Rendereable2D {
         return this.img;
     }
 
-    onLoadComplete(func) {
+    onLoadComplete(func:() => void):void {
         this.func = func;
     }
 }

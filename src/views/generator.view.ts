@@ -2,12 +2,17 @@
  * Generate a printable version of puzzle
  */
 import { View } from "./view";
-import PuzzleGame, { GAME_EVENTS } from "../game/puzzle.game";
 import { VIEWS } from "../const";
 import PuzzleGeneratorPrint from "../game/puzzle.generator-print";
+import { IGameSettings } from "../models/gameSettings";
 
 export class GeneratorView extends View{
-    constructor(visible=false){
+
+    private readonly generator:PuzzleGeneratorPrint;
+    private printBtn: HTMLElement;
+
+
+    constructor(visible:boolean=false){
         super(VIEWS.GAME, "generator_view", visible);
 
         const padding =  50;
@@ -16,11 +21,11 @@ export class GeneratorView extends View{
             height: window.innerHeight - padding
         });
         
-        this.printBtn = document.getElementById("printBtn");
+        this.printBtn = document.getElementById("printBtn") as HTMLElement;
         this.printBtn.addEventListener("click", this._print.bind(this));
     }
 
-    start(inputSettings){
+    start(inputSettings:IGameSettings){
         this.show();
         
         this.generator.load(inputSettings);
@@ -33,9 +38,9 @@ export class GeneratorView extends View{
     }
 
     // TODO: move this to tool 
-    printImage(elem)
+    printImage(elem:HTMLImageElement)
     {
-        const mywindow = window.open('', 'PRINT', `height=${elem.height},width=${elem.width}`);
+        const mywindow = window.open('', 'PRINT', `height=${elem.height},width=${elem.width}`) as any;
 
         mywindow.document.write('<html><head><title>print</title>');
         mywindow.document.write('</head><body >');

@@ -1,7 +1,10 @@
 import { PUZZLE_GAME_STATUS, TIME_GAME, TO_SECONDS } from "../const";
-import { Engine2d } from "../engine/engine2d";
+import { Engine2d, EngineOptions } from "../engine/engine2d";
 import PiecePuzzleTool from "./tools/piecepuzzle.tool";
 import ImageRender from "./render/image.render";
+import { IGameSettings } from "../models/gameSettings";
+import { TouchPosition } from "../engine/touch.event";
+import { Container } from "./render/container.render";
 
 /**
  * Game events for onEvent
@@ -15,24 +18,31 @@ export const GAME_EVENTS = {
  * Jigsaw Puzzle
  */
 export default class PuzzleGame {
-    constructor(canvasId, options) {
-        this.stage = new Engine2d(canvasId, options);
 
-        this.inputSettings = null;
-        this._onEventfn = null;
+    private stage:Engine2d;
+    private image?:ImageRender;
+    private inputSettings?:IGameSettings;
+    private _onEventfn?:(name:string, data:string) => void;
+    private gameStatus:PUZZLE_GAME_STATUS;
+    private touchEvent?:TouchPosition;
+
+    private timeStart:number = 0;
+    private containerToMove?:Container;
+
+    constructor(canvasId:string|HTMLCanvasElement, options:EngineOptions) {
+        this.stage = new Engine2d(canvasId, options);
 
         this.gameStatus = PUZZLE_GAME_STATUS.NONE;
 
         // Note: maybe not the best place. Event should be added and remove each time, but just a test ;)
-        this.touchEvent = null;
-        this.stage.addTouchEvent((e) => {
+        this.stage.addTouchEvent((e:TouchPosition) => {
             if(this.gameStatus !== PUZZLE_GAME_STATUS.PLAYING) return;
 
             this.touchEvent = e;
         })
     }
 
-    load(inputSettings){
+    load(inputSettings:IGameSettings){
         // create ImageRendering
         this.inputSettings = inputSettings;
 
@@ -47,12 +57,12 @@ export default class PuzzleGame {
      * NOTE: We already know that we could use EventEmitter. but we use simple callback. 
      * @param {function} fn callback 
      */
-    onEvent(fn){
+    onEvent(fn:(name:string, data:string) => void){
         this._onEventfn = fn;
     }
 
 
-    _emitEvent(name, data={}){
+    _emitEvent(name:string, data:string=""){
         if(this._onEventfn){
             this._onEventfn(name, data)
         }
@@ -67,7 +77,7 @@ export default class PuzzleGame {
         // play the game
 
         // Check status to start
-        if (this.image.isReady()) {
+        if (this.image!.isReady()) {
             this.previewImage();
         } else {
             this.gameStatus = PUZZLE_GAME_STATUS.PRE_PREVIEW;
@@ -83,7 +93,7 @@ export default class PuzzleGame {
 
         this._emitEvent(GAME_EVENTS.UPDATE_UI, `Starting in: ${counter}`);
 
-        this.stage.addItem(this.image);
+        this.stage.addItem(this.image!);
         this.stage.render();
         
 
@@ -94,7 +104,7 @@ export default class PuzzleGame {
             if (counter <= 0) {
                 clearInterval(previewWait);
                 
-                this.stage.removeItem(this.image);
+                this.stage.removeItem(this.image!);
 
                 this.createGame();
             }
@@ -111,17 +121,17 @@ export default class PuzzleGame {
         
         this.stage.addRange(
             PiecePuzzleTool.createFromImage(
-                this.image, 
-                this.inputSettings.horizontal, 
-                this.inputSettings.vertical,
+                this.image!, 
+                this.inputSettings!.horizontal, 
+                this.inputSettings!.vertical,
                 this.stage.width,
                 this.stage.height,
             )
         );
 
         // Clear touch & piece to move
-        this.touchEvent = null;
-        this.containerToMove = null;
+        this.touchEvent = undefined;
+        this.containerToMove = undefined;
 
         this.gameStatus = PUZZLE_GAME_STATUS.PLAYING;
         this.onUpdateGame();
@@ -140,8 +150,9 @@ export default class PuzzleGame {
                 for (let pos = this.stage.items.length - 1; pos >= 0; pos--) {
                     const item = this.stage.items[pos];
 
-                    if (item.checkTouchColission(this.touchEvent)) {
-                        this.containerToMove = item;
+                    const container = item as Container;
+                    if (container.checkTouchColission(this.touchEvent)) {
+                        this.containerToMove = container;
                         break;
                     };
                 }
@@ -156,7 +167,8 @@ export default class PuzzleGame {
                 for (const item of this.stage.items) {
                     if(item.id === this.containerToMove.id) continue;
 
-                    const resColl = item.checkContainerCollision(this.containerToMove);
+                    const container = item as Container;
+                    const resColl = container.checkContainerCollision(this.containerToMove);
                     if(resColl.collision){
                         this.containerToMove.clearDragAndDrop();
 
@@ -164,11 +176,11 @@ export default class PuzzleGame {
                         resColl.data.other.piece.tagInfo.removeTag(resColl.data.current.piece.tagInfo.name);
                         resColl.data.current.piece.tagInfo.removeTag(resColl.data.other.piece.tagInfo.name);
                         
-                        item.mergeGroup(this.containerToMove);
+                        container.mergeGroup(this.containerToMove);
 
                         this.stage.removeItem(this.containerToMove);
 
-                        this.containerToMove = null;
+                        this.containerToMove = undefined;
                         break
                     }
                 }
@@ -177,12 +189,12 @@ export default class PuzzleGame {
                 if (this.containerToMove) {
                     this.containerToMove.clearDragAndDrop();
                 }
-                this.containerToMove = null;
+                this.containerToMove = undefined;
             }
         }
         
         // Clear touch
-        this.touchEvent = null;
+        this.touchEvent = undefined;
 
         // Update UI Time
         const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
@@ -190,7 +202,7 @@ export default class PuzzleGame {
 
         if(this.stage.items.length === 1){
             this._emitEvent(GAME_EVENTS.UPDATE_UI, 'Well done');
-            this.stage.items[0].setPos(0,0);
+            (this.stage.items[0] as Container).setPos(0,0);
 
             this.gameStatus = PUZZLE_GAME_STATUS.END;
         }
@@ -216,8 +228,8 @@ export default class PuzzleGame {
         this.gameStatus = PUZZLE_GAME_STATUS.NONE;
         this.stage.clear();
 
-        this.image = null;
-        this.inputSettings = null;
-        this.touchEvent = null;
+        this.image = undefined;
+        this.inputSettings = undefined;
+        this.touchEvent = undefined;
     }
 }

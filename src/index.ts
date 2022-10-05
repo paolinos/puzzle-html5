@@ -1,7 +1,8 @@
 import { MainView } from "./views/main.view";
 import { GameView } from "./views/game.view";
 import { GeneratorView } from "./views/generator.view";
-import { VIEWS } from "./const";
+import { VIEWS } from "./const"
+import { IGameSettings } from "./models/gameSettings";
 
 const onInit = async () => {
 
@@ -11,7 +12,12 @@ const onInit = async () => {
     const gameView = new GameView();
     const generatorView = new GeneratorView();
 
-    mainView.onNext((data, type) => {        
+    mainView.onNext((data?:IGameSettings, type?:string) => {
+
+        if(!data || !type){
+            throw new Error("Unexpected behavior");
+        }
+
         mainView.clear();
 
         if(type === VIEWS.GAME){

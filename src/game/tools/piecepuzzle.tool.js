@@ -85,4 +85,86 @@ export default class PiecePuzzleTool{
         return data;
     }
 
+
+    // TODO: refactor here
+    static createPrintableFromImage(image, horizontal, vertical, maxWidth, maxHeight) {
+        const data = [];
+
+        const img = image.getImg();
+        const imgW = img.width / horizontal;
+        const imgH = img.height / vertical;
+        console.log(`image size: ${img.width}x${img.height}`);
+
+        const totalW = img.width + (imgW * 0.15 * horizontal);
+        const totalH = img.height + (imgH * 0.20 * vertical);
+        console.log(`totalW:${totalW} - totalH: ${totalH}`);
+
+        for (let x = 0; x < horizontal; x++) {
+            for (let y = 0; y < vertical; y++) {
+                const imgX = x * imgW;
+                const imgY = y * imgH;
+
+                const name = (x+1) + (horizontal*y);
+                const tags = [];
+                const tagCollision = {};
+                
+                if(x > 0){
+                    const tmp = name - 1;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.LEFT] = {
+                        value: tmp,
+                        isInternal: () => true
+                    };
+                }
+                if(x+1 < horizontal){
+                    const tmp = name + 1;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.RIGHT] = {
+                        value: tmp,
+                        isInternal: () => false
+                    };
+                }
+
+                if(y > 0){
+                    const tmp = name - vertical;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.UP] = {
+                        value: tmp,
+                        isInternal: () => true
+                    }
+                }
+                if(y+1 < vertical){
+                    const tmp = name + vertical;
+                    tags.push(tmp);
+                    tagCollision[PUZZLE_TABS.DOWN] = {
+                        value: tmp,
+                        isInternal: () => false
+                    };
+                }
+
+                const container = new Container([
+                    new PieceRender(img, 
+                        new ImagePosition(imgX,imgY, imgW, imgH), 
+                        new ImagePosition(imgX,imgY, imgW, imgH),
+                        new TagInfo(name, tags, tagCollision)
+                    )
+                ]);
+
+                console.log(`name: ${name} - img:{${imgX}, ${imgY}} - size:{${imgW}, ${imgH}}`);
+
+                console.log(`imgW * x,imgH * y => x:${x}, y:${y}, ${imgW * x},${imgH * y}`);
+
+                console.log(`container: ${container.width} ${container.height}`);
+
+                //totalW += imgW + (x * imgW * 0.15);
+                //totalH += imgH + (y * imgH * 0.20);
+
+                container.setPos(x * imgW * 0.15, y * imgH * 0.20);
+                data.push(container);
+            }
+        }
+
+        return {data: data, width: totalW, height: totalH };
+    }
+
 }

@@ -32,9 +32,19 @@ export class Engine2d {
     get width(){
         return this._canvas.width;
     }
+    set width(value){
+        this._canvas.width = value;
+    }
 
     get height(){
         return this._canvas.height;
+    }
+    set height(value){
+        this._canvas.height = value;
+    }
+
+    get canvas(){
+        return this._canvas;
     }
 
     addItem(item) {

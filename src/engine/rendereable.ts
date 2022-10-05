@@ -1,26 +1,25 @@
 import AutoIncrement from '../common/autoincrement.common';
 
-export const RENDEREABLE_TYPE = {
-    CONTAINER : 'container',
-    GROUP : 'group',
-    PIECE : 'piece'
-}
+export enum RENDEREABLE_TYPE {
+    CONTAINER = 'container',
+    GROUP = 'group',
+    PIECE = 'piece'
+};
 
 /**
  * Base rendereable object
  */
 export class Rendereable2D {
-    _id = -1;
-    _visible = true;
-    _x = 0;
-    _y = 0;
-    _type = '';
+    private readonly _id:number;
+    private _visible:boolean = true;
+    private _x:number = 0;
+    private _y:number = 0;
     
-    constructor(type){
-        this._type = type;
+    constructor(
+        private readonly _type:RENDEREABLE_TYPE
+    ){
         this._id = AutoIncrement.getId();
     }
-    
     
     get id() {
         return this._id;
@@ -33,25 +32,25 @@ export class Rendereable2D {
     get visible() {
         return this._visible;
     }
-    set visible(value){
+    set visible(value:boolean){
         this._visible = value;
     }
 
     get x() {
         return this._x;
     }
-    set x(value){
+    set x(value:number){
         this._x = value;
     }
 
     get y(){
         return this._y;
     }
-    set y(value){
+    set y(value:number){
         this._y = value;
     }
 
-    render(ctx){
+    render(_ctx:CanvasRenderingContext2D):void {
         throw new Error("Not implemented");
     }
 }

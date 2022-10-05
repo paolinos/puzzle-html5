@@ -1,10 +1,19 @@
-import { Rendereable2D } from "../../engine/rendereable";
+import { Rendereable2D, RENDEREABLE_TYPE } from "../../engine/rendereable";
+
+interface DragDropRelative {
+    active: boolean;
+    diff_x: number;
+    diff_y: number;
+}
 
 /**
  * abstract class.
  */
 export class BoxDragDrop extends Rendereable2D{
-    constructor(type){
+
+    _drag_drop:DragDropRelative;
+
+    constructor(type:RENDEREABLE_TYPE){
         super(type);
 
         this._drag_drop = {
@@ -14,16 +23,16 @@ export class BoxDragDrop extends Rendereable2D{
         };
     }   
 
-    render(ctx){
+    render(_ctx:CanvasRenderingContext2D){
         throw new Error("Not implemented");
     }
 
-    setPos(x, y) {
+    setPos(x:number, y:number) {
         this.x = x - this._drag_drop.diff_x;
         this.y = y - this._drag_drop.diff_y;
     }
 
-    startDragAndDrop(x,y){
+    startDragAndDrop(x:number, y:number){
         this._drag_drop.active = true;
         this._drag_drop.diff_x = x - this.x;
         this._drag_drop.diff_y = y - this.y;

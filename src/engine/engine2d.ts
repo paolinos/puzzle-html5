@@ -1,23 +1,48 @@
 import { Rendereable2D as Rendereable } from "./rendereable";
 import { TOUCH_TYPE, TouchPosition } from './touch.event';
 
+export type EngineOptions = {
+    width: number;
+    height: number;
+}
+
+export interface IEngine2D {
+    get width():number;
+    set width(value:number);
+
+    get height():number;
+    set height(value:number);
+
+    get canvas():HTMLCanvasElement;
+    get items():Rendereable[];
+
+    addItem(item:Rendereable):void;
+    addRange(list:Rendereable[]):void;
+    removeItem(item:Rendereable):void;
+    removeAllItems():void;
+    
+}
+
+
 /**
  * Engine2d is a base abstraction to use Canvas
  */
-export class Engine2d {
+export class Engine2d implements IEngine2D {
 
-    constructor(value, options=null){
-        this._canvas = null;
-        this._context = null;
+    private _canvas:HTMLCanvasElement;
+    private _context:CanvasRenderingContext2D;
+    private _items:Rendereable[];
+    private _canvas_rect:DOMRect;
+    private _func:((value:TouchPosition) => void)|undefined = undefined;
+    private mouseDown:boolean = false;
+
+    constructor(value:string|HTMLCanvasElement, options:EngineOptions|null = null){
         this._items = [];
-        this._canvas_rect = null;
-
-        this._func = null;
 
         if(value instanceof HTMLCanvasElement){
-            this._canvas = value;
+            this._canvas = value as HTMLCanvasElement;
         }else{
-            this._canvas = document.getElementById(value);
+            this._canvas = document.getElementById(value) as HTMLCanvasElement;
         }
 
         if(options){
@@ -25,35 +50,35 @@ export class Engine2d {
             if(options.height) this._canvas.height = options.height;
         }
 
-        this._context = this._canvas.getContext('2d');
+        this._context = this._canvas.getContext('2d') as CanvasRenderingContext2D;
         this._canvas_rect = this._canvas.getBoundingClientRect();
     }
 
-    get width(){
+    get width():number{
         return this._canvas.width;
     }
-    set width(value){
+    set width(value:number){
         this._canvas.width = value;
     }
 
-    get height(){
+    get height():number {
         return this._canvas.height;
     }
-    set height(value){
+    set height(value:number){
         this._canvas.height = value;
     }
 
-    get canvas(){
+    get canvas():HTMLCanvasElement {
         return this._canvas;
     }
 
-    addItem(item) {
-        if(!(item instanceof Rendereable)) return;
+    addItem(item:Rendereable):void {
+        //if(!(item instanceof Rendereable)) return;
 
         this._items.push(item);
     }
 
-    addRange(list) {
+    addRange(list:Rendereable[]):void {
         if(!(list instanceof Array)) return;
 
         for (const item of list) {
@@ -61,7 +86,7 @@ export class Engine2d {
         }
     }
 
-    removeItem(item) {
+    removeItem(item:Rendereable):void {
         if(!(item instanceof Rendereable)) return;
 
         const pos = this._items.findIndex(q => q.id === item.id);
@@ -70,15 +95,15 @@ export class Engine2d {
         }
     }
 
-    removeAllItems(){
+    removeAllItems():void{
         this._items = [];
     }
 
-    get items(){
+    get items():Rendereable[]{
         return this._items;
     }
 
-    addTouchEvent(func){
+    addTouchEvent(func:(value:TouchPosition) => void){
         if(!func || this._func) return;
         
         this._func = func;
@@ -90,7 +115,7 @@ export class Engine2d {
     }
 
     removeTouchEvent(){
-        this._func = null;
+        this._func = undefined;
 
         this._canvas.removeEventListener("mousedown", this._onTouchDown, false);
         this._canvas.removeEventListener("mousemove", this._onTouchMove, false);
@@ -110,29 +135,27 @@ export class Engine2d {
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
     }
 
-
-
-    _onTouchDown(e) {
+    private _onTouchDown(e:MouseEvent) {
         if (!this._func) return;
         this.mouseDown = true;
 
         this._sendEvent(TOUCH_TYPE.DOWN , e);
     }
 
-    _onTouchMove(e) {
+    private _onTouchMove(e:MouseEvent) {
         if(!this.mouseDown) return;
 
         this._sendEvent(TOUCH_TYPE.MOVE, e);
     }
 
-    _onTouchUp(e) {
+    private _onTouchUp(e:MouseEvent) {
         if (!this.mouseDown) return;
         this.mouseDown = false;
 
         this._sendEvent(TOUCH_TYPE.UP, e);
     }
 
-    _sendEvent(eventName, mouseEvent){
+    private _sendEvent(eventName:TOUCH_TYPE, mouseEvent:MouseEvent){
         if (!this._func) return;
         this._func(
             new TouchPosition(eventName, mouseEvent.clientX - this._canvas_rect.left, mouseEvent.clientY - this._canvas_rect.top)

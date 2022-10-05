@@ -2,16 +2,33 @@ import { PUZZLE_TABS } from "../../const";
 import { Rendereable2D, RENDEREABLE_TYPE } from "../../engine/rendereable";
 import { ImagePosition } from "../models/imagePosition";
 import { TagInfo } from "../models/tagInfo";
+import { Container } from "./container.render";
 
 export class PieceRender extends Rendereable2D{
 
-    constructor(img, source, destination, tagInfo){
+    //img;
+    //source:ImagePosition;
+    //destination:ImagePosition;
+    //tagInfo:TagInfo;
+
+    // TODO: PieceRender & Container should implement some interface that have parent prop, and others props
+    parent:PieceRender|Container|undefined = undefined;
+
+    private tabSizeW:number;
+    private tabSizeH:number;
+
+    constructor(
+        private readonly img:HTMLImageElement, 
+        public readonly source:ImagePosition, 
+        public readonly destination:ImagePosition, 
+        public readonly tagInfo:TagInfo){
         super(RENDEREABLE_TYPE.PIECE);
 
+        /*
         if(!(
             source instanceof ImagePosition || 
             destination instanceof ImagePosition ||
-            tags instanceof TagInfo
+            tagInfo instanceof TagInfo
             )
         ) throw new Error("Wrong implementation");
         
@@ -19,8 +36,7 @@ export class PieceRender extends Rendereable2D{
         this.source = source;
         this.destination = destination;
         this.tagInfo = tagInfo;
-
-        this.parent = null;
+        */
 
         
         // calculate tab sizes.
@@ -34,15 +50,15 @@ export class PieceRender extends Rendereable2D{
     }
 
     get x(){ return this.destination.x; }
-    set x(value){ this.destination.x = value; }
+    set x(value:number){ this.destination.x = value; }
 
     get y(){ return this.destination.y; }
-    set y(value){ this.destination.y = value; }
+    set y(value:number){ this.destination.y = value; }
 
     get width(){ return this.destination.width; }
     get height(){ return this.destination.height; }
 
-    render(ctx){
+    render(ctx:CanvasRenderingContext2D):void {
         // Get calculation values
         let x = this.x;
         let y = this.y;
@@ -58,11 +74,6 @@ export class PieceRender extends Rendereable2D{
         const tabSizeW = this.tabSizeW;
         const tabSizeH = this.tabSizeW;
 
-        //console.log();
-
-        // Tab to find
-        let tab = null;
-
         ctx.save();
 
         ctx.beginPath();
@@ -70,7 +81,7 @@ export class PieceRender extends Rendereable2D{
         ctx.moveTo(x, y);
 
         // TOP Line
-        tab = this.tagInfo.getTagCollision(PUZZLE_TABS.UP);
+        let tab = this.tagInfo.getTagCollision(PUZZLE_TABS.UP);
         if (tab) {
             const multiple = tab.isInternal() ? 1 : -1;
             // Inside tab

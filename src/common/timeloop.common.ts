@@ -3,26 +3,31 @@
  * // TODO: THIS WILL BE CHANGED BY requestAnimationFrame
  */
 export default class TimeLoop{
+
+    private intervalTime:number;
+    private interval:number|undefined = undefined;
+    private func:((dt:number) => void)|undefined = undefined;
+    //private prevFrame:number;
+
     constructor(fps = 30) {
         this.intervalTime = 1000 / fps;
-        this.interval = null;
-        this.func = null;
-        this.prevFrame = 0;
+        //this.prevFrame = 0;
     }
 
-    addEventOnFrame(func) {
+    addEventOnFrame(func:(dt:number) => void) {
         this.func = func;
     }
 
     start() {
         clearInterval(this.interval);
-        this.prevFrame = performance.now();
+        let prevFrame = performance.now();
         this.interval = setInterval(() => {
             const current = performance.now();
+            const deltaT = current - prevFrame;
             if (this.func) {
-                this.func();
+                this.func(deltaT);
             }
-            this.prevFrame = current;
+            prevFrame = current;
         }, this.intervalTime)
     }
 

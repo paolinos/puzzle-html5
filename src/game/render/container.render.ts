@@ -1,10 +1,12 @@
 import { BoxDragDrop } from "./boxDragDrop.render";
-import { Rendereable2D, RENDEREABLE_TYPE } from "../../engine/rendereable";
+import { RENDEREABLE_TYPE } from "../../engine/rendereable";
+import { PieceRender } from "./piece.render";
+import { TouchPosition } from "../../engine/touch.event";
 
 export class Container extends BoxDragDrop {
-    _pieces = [];
+    private _pieces:PieceRender[] = [];
     
-    constructor(pieces = []){
+    constructor(pieces:PieceRender[] = []){
         super(RENDEREABLE_TYPE.CONTAINER);
 
         this._pieces = pieces;
@@ -13,13 +15,13 @@ export class Container extends BoxDragDrop {
         }
     }
 
-    render(ctx){
+    render(ctx:CanvasRenderingContext2D){
         for (const piece of this._pieces) {
             piece.render(ctx);
         }
     }
 
-    setPos(x, y) {
+    setPos(x:number, y:number) {
         super.setPos(x,y);
     }
 
@@ -28,7 +30,7 @@ export class Container extends BoxDragDrop {
      * @param {TouchPosition} touchPos 
      * @returns {boolean} 
      */
-    checkTouchColission(touchPos) {
+    checkTouchColission(touchPos:TouchPosition) {
         for (const piece of this._pieces) {
             if (
                 touchPos.getX() >= (this.x + piece.x) && touchPos.getX() <= (this.x + piece.x + piece.width) &&
@@ -39,11 +41,12 @@ export class Container extends BoxDragDrop {
     }
 
     // TODO: New version
-    checkContainerCollision(container) {
-        if(container.id === this.id) return false;
+    checkContainerCollision(container:Container):{collision: boolean, data?: any } {
+        if(container.id === this.id) {collision: false};
 
         // TODO: move this inside of piece
-        const checkBoundingBoxCollisionWithParent = (itemA, itemB) => (
+        const checkBoundingBoxCollisionWithParent = (itemA:PieceRender, itemB:PieceRender) => (
+            itemB.parent && itemA.parent &&
             itemB.x + itemB.parent.x < itemA.x + itemA.parent.x + itemA.width &&
             itemB.x + itemB.parent.x + itemB.width > itemA.x + itemA.parent.x &&
             itemB.y + itemB.parent.y < itemA.y+ itemA.parent.y + itemA.height &&
@@ -77,11 +80,11 @@ export class Container extends BoxDragDrop {
             }
         }
 
-        return { collision: false, data: null }
+        return { collision: false }
     }
 
-    addPiece(piece){
-        if(!(piece instanceof Rendereable2D)) return;
+    addPiece(piece:PieceRender){
+        //if(!(piece instanceof Rendereable2D)) return;
 
         piece.parent = this;
         this._pieces.push(piece);
@@ -91,17 +94,17 @@ export class Container extends BoxDragDrop {
         return this._pieces;
     }
 
-    removePiece(piece){
-        if(!(piece instanceof Rendereable2D)) return;
+    removePiece(piece:PieceRender){
+        //if(!(piece instanceof Rendereable2D)) return;
 
         const index = this._pieces.findIndex(q => q.id === piece.id);
         if(index >= 0){
             this._pieces.splice(index, 1);
-            piece.parent = null;
+            piece.parent = undefined;
         }
     }
 
-    mergeGroup(group){
+    mergeGroup(group:Container|any){
         if(!(group instanceof Container)) return;
 
         for (const piece of group.pieces) {

@@ -1,11 +1,11 @@
 // Game status
-export const PUZZLE_GAME_STATUS = {
-    NONE: 0,
-    LOADING_IMAGE: 10,
-    PRE_PREVIEW: 15,
-    PREVIEWING: 20,
-    PLAYING: 30,
-    END: 40
+export enum PUZZLE_GAME_STATUS {
+    NONE = 0,
+    LOADING_IMAGE = 10,
+    PRE_PREVIEW = 15,
+    PREVIEWING = 20,
+    PLAYING = 30,
+    END = 40
 }
 
 
@@ -27,11 +27,11 @@ export const SIDES = {
     RIGHT: "right"
 }
 
-export const VIEWS = {
-    MAIN: "main",
-    GAME: "game",
-    GENERATOR: "generator"
-}
+export enum VIEWS {
+    MAIN = "main",
+    GAME= "game",
+    GENERATOR= "generator"
+};
 
 // Validation Const
 export const VALIDATION_INPUT_MIN_VALUE = 2;

@@ -19,7 +19,8 @@ const isValid = (horizontalInput:HTMLInputElement, verticalInput:HTMLInputElemen
 /**
  * Main/Setting view
  */
-export class MainView extends View{
+export class MainView extends View {
+
     private _horizontalInput: HTMLInputElement;
     private _verticalInput: HTMLInputElement;
     private _file: HTMLInputElement;
@@ -38,12 +39,10 @@ export class MainView extends View{
         this._generateBtn = document.getElementById("generateBtn") as HTMLElement;
         this._errorMessage = document.getElementById("error-msg") as HTMLElement;
 
-
         this._startBtn.addEventListener("click", () => { this._validateInputs(VIEWS.GAME) });
-
         this._generateBtn.addEventListener("click", () => { this._validateInputs(VIEWS.GENERATOR) });
 
-        //this.clear();
+        this.show();
     }
 
     clear(){

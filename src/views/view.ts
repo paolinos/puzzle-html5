@@ -13,15 +13,14 @@ export interface IView {
 }
 
 export abstract class View implements IView {
-    protected _element:HTMLElement;
+    protected readonly _element:HTMLElement;
     protected _fn:((data?: IGameSettings, type?: string) => void)|undefined;
 
     constructor(
         protected _name:string,
         protected _nodeId:string,
-        visible:boolean = false){
-        //this._name = name;
-        //this._nodeId = nodeId;
+        visible:boolean = false
+    ){
         this._element = document.getElementById(this._nodeId) as HTMLElement;
 
         if(!visible){

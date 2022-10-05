@@ -1,3 +1,4 @@
+import { IView } from "./views/view";
 import { MainView } from "./views/main.view";
 import { GameView } from "./views/game.view";
 import { GeneratorView } from "./views/generator.view";
@@ -8,9 +9,9 @@ const onInit = async () => {
 
     console.log("on init");
 
-    const mainView = new MainView();
-    const gameView = new GameView();
-    const generatorView = new GeneratorView();
+    const mainView:IView = new MainView();
+    const gameView:IView = new GameView();
+    const generatorView:IView = new GeneratorView();
 
     mainView.onNext((data?:IGameSettings, type?:string) => {
 

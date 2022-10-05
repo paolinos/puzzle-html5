@@ -6,7 +6,7 @@ import { VIEWS } from "../const";
 import PuzzleGeneratorPrint from "../game/puzzle.generator-print";
 import { IGameSettings } from "../models/gameSettings";
 
-export class GeneratorView extends View{
+export class GeneratorView extends View {
 
     private readonly generator:PuzzleGeneratorPrint;
     private printBtn: HTMLElement;

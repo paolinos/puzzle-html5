@@ -54,7 +54,7 @@ export class Container extends BoxDragDrop {
     checkContainerCollision(container:Container):{collision: boolean, data?: any } {
         if(container.id === this.id) return { collision: false };
 
-        // TODO: move this inside of piece
+        // Check bounding box collision first
         const checkBoundingBoxCollisionWithParent = (itemA:PieceRender, itemB:PieceRender) => (
             itemB.parent && itemA.parent &&
             itemB.x + itemB.parent.x < itemA.x + itemA.parent.x + itemA.width &&
@@ -63,15 +63,13 @@ export class Container extends BoxDragDrop {
             itemB.height + itemB.y + itemB.parent.y > itemA.y + itemA.parent.y
         );
 
-
-        // TODO: foreach vs for vs reverse while vs forEach().... maybe not important for this
-        for (const piece of this._pieces) {
-            for (const otherPiece of container.pieces) {
-                const result = piece.tagInfo.check(otherPiece.tagInfo);
-                if(result){
-
-                    if(checkBoundingBoxCollisionWithParent(piece, otherPiece)){
-                        //console.log("Collision:", otherPiece.tagInfo, "with static:", piece.tagInfo)
+        // Only check collision with matching pieces
+        if (checkBoundingBoxCollisionWithParent(this, container)) {
+            // Check each piece in this container against pieces in other container
+            for (const piece of this._pieces) {
+                for (const otherPiece of container.pieces) {
+                    const result = piece.tagInfo.check(otherPiece.tagInfo);
+                    if(result){
                         return {
                             collision: true,
                             data: {
@@ -80,8 +78,8 @@ export class Container extends BoxDragDrop {
                                 },
                                 other: {
                                     piece: otherPiece,
-                                    //tag: result,
-                                    //side: otherPiece.tagInfo.getTagCollision(result)
+                                    tag: result,
+                                    side: otherPiece.tagInfo.getTagCollision(result)
                                 }
                             }
                         }

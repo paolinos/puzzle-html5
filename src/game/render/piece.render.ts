@@ -114,7 +114,7 @@ export class PieceRender extends Rendereable2D{
             ctx.quadraticCurveTo(middleWidth - (tabSizeW*2), toY + (tabSizeH * multiple), middleWidth - tabSizeW, toY)
         }
         ctx.lineTo(x, toY);            // close Line
-        
+     
 
         // Left line
         tab = this.tagInfo.getTagCollision(PUZZLE_TABS.LEFT);
@@ -142,6 +142,15 @@ export class PieceRender extends Rendereable2D{
         );
 
         ctx.restore();
+    }
+
+    /**
+     * Check if this piece matches with another piece (same tag)
+     */
+    checkMatch(otherPiece:PieceRender): boolean {
+        if (!otherPiece || !this.tagInfo) return false;
+        const result = this.tagInfo.check(otherPiece.tagInfo);
+        return result !== null;
     }
 
     /**

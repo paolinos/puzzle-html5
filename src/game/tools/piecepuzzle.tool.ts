@@ -21,13 +21,21 @@ export default class PiecePuzzleTool{
         const imgW = img.width / horizontal;
         const imgH = img.height / vertical;
 
-        maxWidth -= 10;
-        maxHeight -= 10;
+        // Calculate optimal piece size based on available space
+        // Ensure pieces are visible and not too small
+        const minPieceSize = Math.min(maxWidth, maxHeight) / (horizontal + vertical + 2);
+        const scaledImgW = Math.min(imgW, minPieceSize);
+        const scaledImgH = Math.min(imgH, minPieceSize);
+        
+        // Add some padding to make pieces more visible
+        const padding = 5;
+        const maxWidth = maxWidth - (padding * 2);
+        const maxHeight = maxHeight - (padding * 2);
 
         for (let x = 0; x < horizontal; x++) {
             for (let y = 0; y < vertical; y++) {
-                const imgX = x * imgW;
-                const imgY = y * imgH;
+                const imgX = x * scaledImgW;
+                const imgY = y * scaledImgH;
 
                 const name = (x+1) + (horizontal*y);
                 const tags:number[] = [];
@@ -69,15 +77,17 @@ export default class PiecePuzzleTool{
 
                 const container = new Container([
                     new PieceRender(img, 
-                        new ImagePosition(imgX,imgY, imgW, imgH), 
-                        new ImagePosition(imgX,imgY, imgW, imgH),
+                        new ImagePosition(imgX,imgY, scaledImgW, scaledImgH), 
+                        new ImagePosition(imgX,imgY, scaledImgW, scaledImgH),
                         new TagInfo(name, tags, tagCollision)
                     )
                 ]);
 
-                // Set random position. PieceRender has an relative position, so we need to convert this.
-                const newX = -imgX + (maxWidth * Math.random());
-                const newY = -imgY + (maxHeight * Math.random());
+                // Set random position within available space
+                const availableWidth = maxWidth - scaledImgW;
+                const availableHeight = maxHeight - scaledImgH;
+                const newX = Math.random() * availableWidth;
+                const newY = Math.random() * availableHeight;
                 container.setPos(newX,newY);
                 data.push(container);
             }

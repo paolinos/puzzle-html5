@@ -143,4 +143,15 @@ export class PieceRender extends Rendereable2D{
 
         ctx.restore();
     }
+
+    /**
+     * Snap piece to its destination position
+     */
+    clickToReset() {
+        if (this.parent) {
+            // Snap directly to destination position (parent-relative coordinates)
+            this.x = this.destination.x;
+            this.y = this.destination.y;
+        }
+    }
 }

@@ -50,24 +50,37 @@ export class Container extends BoxDragDrop {
         return false;
     }
 
-    // TODO: New version
+    /**
+     * Check collision with another container
+     * Only pieces with matching tags should collide
+     */
     checkContainerCollision(container:Container):{collision: boolean, data?: any } {
         if(container.id === this.id) return { collision: false };
 
-        // Check bounding box collision first
-        const checkBoundingBoxCollisionWithParent = (itemA:PieceRender, itemB:PieceRender) => (
-            itemB.parent && itemA.parent &&
-            itemB.x + itemB.parent.x < itemA.x + itemA.parent.x + itemA.width &&
-            itemB.x + itemB.parent.x + itemB.width > itemA.x + itemA.parent.x &&
-            itemB.y + itemB.parent.y < itemA.y+ itemA.parent.y + itemA.height &&
-            itemB.height + itemB.y + itemB.parent.y > itemA.y + itemA.parent.y
-        );
-
-        // Only check collision with matching pieces
-        if (checkBoundingBoxCollisionWithParent(this, container)) {
-            // Check each piece in this container against pieces in other container
-            for (const piece of this._pieces) {
-                for (const otherPiece of container.pieces) {
+        // Check each piece in this container against pieces in other container
+        for (const piece of this._pieces) {
+            for (const otherPiece of container.pieces) {
+                // Check if bounding boxes overlap
+                const pieceLeft = this.x + piece.destination.x;
+                const pieceTop = this.y + piece.destination.y;
+                const pieceRight = pieceLeft + piece.destination.width;
+                const pieceBottom = pieceTop + piece.destination.height;
+                
+                const otherPieceLeft = container.x + otherPiece.destination.x;
+                const otherPieceTop = container.y + otherPiece.destination.y;
+                const otherPieceRight = otherPieceLeft + otherPiece.destination.width;
+                const otherPieceBottom = otherPieceTop + otherPiece.destination.height;
+                
+                // Check if bounding boxes overlap
+                const boxesOverlap = !(
+                    pieceRight < otherPieceLeft ||
+                    pieceLeft > otherPieceRight ||
+                    pieceBottom < otherPieceTop ||
+                    pieceTop > otherPieceBottom
+                );
+                
+                // Only allow collision if pieces have matching tags
+                if (boxesOverlap) {
                     const result = piece.tagInfo.check(otherPiece.tagInfo);
                     if(result){
                         return {

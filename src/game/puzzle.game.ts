@@ -141,84 +141,117 @@ export default class PuzzleGame {
      * On update game
      */
     onUpdateGame(){
-        this.stage.clear();
+        // Clear stage for re-render
+        if (this.gameStatus === PUZZLE_GAME_STATUS.END){
+            this.stage.removeAllItems();
+            this._emitEvent(GAME_EVENTS.END);
+            return;
+        }
+
+        // Clear touch position at end of frame
+        const prevTouchEvent = this.touchEvent;
         
-        if (this.touchEvent){
+        this.touchEvent = undefined; // Will be set by event handler next frame
 
-            if (this.touchEvent.isDown()) {
-                // check collision
-                for (let pos = this.stage.items.length - 1; pos >= 0; pos--) {
-                    const item = this.stage.items[pos];
-
-                    const container = item as Container;
-                    if (container.checkTouchColission(this.touchEvent)) {
-                        this.containerToMove = container;
-                        break;
-                    };
-                }
-
-                if(this.containerToMove){
-                    this.containerToMove.startDragAndDrop(this.touchEvent.getX(), this.touchEvent.getY());
-                }
+        // Check game status first
+        if(this.stage.items.length === 1){
+            const finalContainer = this.stage.items[0] as Container;
+            
+            // Set final position (0,0) for solved puzzle
+            finalContainer.setPos(0,0);
+            
+            // Check if container is not empty (has at least one piece)
+            if(finalContainer.pieces.length > 0){
+                this.gameStatus = PUZZLE_GAME_STATUS.END;
             }
-            else if (this.touchEvent.isMove() && this.containerToMove){
-                this.containerToMove.setPos(this.touchEvent.getX(), this.touchEvent.getY());
+        }
+        else if (Math.floor((Date.now() - this.timeStart) * TO_SECONDS) >= TIME_GAME ) {
+            this.gameStatus = PUZZLE_GAME_STATUS.END;
+        }
 
-                for (const item of this.stage.items) {
-                    if(item.id === this.containerToMove.id) continue;
+        // Update UI Time
+        const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
+        const remainingTime = Math.max(0, TIME_GAME - currentTime);
+        
+        // Check if puzzle is completed
+        if (this.gameStatus === PUZZLE_GAME_STATUS.END) {
+            let finalTime = Math.min(currentTime, TIME_GAME); // Cap at TIME_GAME
+            this._emitEvent(GAME_EVENTS.UPDATE_UI, `GAME WIN! ${finalTime}s`);
+        } else {
+            this._emitEvent(GAME_EVENTS.UPDATE_UI, `End game in: ${remainingTime}`);
+        }
 
-                    const container = item as Container;
-                    const resColl = container.checkContainerCollision(this.containerToMove);
-                    if(resColl.collision){
+        // Process touch events before clearing stage
+        if (prevTouchEvent){
+            const touchEvent = prevTouchEvent;
+
+            if (touchEvent.isDown()) {
+                // check collision - use prev containerToMove since it might still be valid
+                // We need to check collision with all pieces before clearing containerToMove
+                let foundContainer = this.containerToMove;
+                
+                // If no container is being moved and we clicked on a piece, select it
+                if (!foundContainer) {
+                    for (let pos = this.stage.items.length - 1; pos >= 0; pos--) {
+                        const item = this.stage.items[pos];
+                        const container = item as Container;
+                        if (container.checkTouchColission(touchEvent)) {
+                            foundContainer = container;
+                            break;
+                        };
+                    }
+                }
+
+                if(foundContainer){
+                    foundContainer.startDragAndDrop(touchEvent.getX(), touchEvent.getY());
+                    this.containerToMove = foundContainer;
+                    // Also clear dragAndDrop if we're switching containers
+                    if (this.containerToMove !== foundContainer && this.containerToMove) {
                         this.containerToMove.clearDragAndDrop();
-
-                        // Remove tags collision
-                        resColl.data.other.piece.tagInfo.removeTag(resColl.data.current.piece.tagInfo.name);
-                        resColl.data.current.piece.tagInfo.removeTag(resColl.data.other.piece.tagInfo.name);
-                        
-                        container.mergeGroup(this.containerToMove);
-
-                        this.stage.removeItem(this.containerToMove);
-
-                        this.containerToMove = undefined;
-                        break
                     }
                 }
             }
-            else if (this.touchEvent.isUp() ){
+            else if (touchEvent.isMove()){
+                if (this.containerToMove){
+                    this.containerToMove.setPos(touchEvent.getX(), touchEvent.getY());
+
+                    for (const item of this.stage.items) {
+                        if(item.id === this.containerToMove.id) continue;
+
+                        const container = item as Container;
+                        const resColl = container.checkContainerCollision(this.containerToMove);
+                        if(resColl.collision){
+                            this.containerToMove.clearDragAndDrop();
+                            this.containerToMove.setPos(this.containerToMove.x, this.containerToMove.y - 1); // Snap to grid later if needed
+
+                            // Remove tags collision
+                            resColl.data.other.piece.tagInfo.removeTag(resColl.data.current.piece.tagInfo.name);
+                            resColl.data.current.piece.tagInfo.removeTag(resColl.data.other.piece.tagInfo.name);
+                            
+                            container.mergeGroup(this.containerToMove);
+
+                            this.stage.removeItem(this.containerToMove);
+
+                            this.containerToMove = undefined;
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (touchEvent.isUp() ){
                 if (this.containerToMove) {
                     this.containerToMove.clearDragAndDrop();
                 }
                 this.containerToMove = undefined;
             }
         }
-        
-        // Clear touch
-        this.touchEvent = undefined;
 
-        // Update UI Time
-        const currentTime = Math.floor((Date.now() - this.timeStart) * TO_SECONDS);
-        this._emitEvent(GAME_EVENTS.UPDATE_UI, `End game in: ${TIME_GAME - currentTime}`);
-
-        if(this.stage.items.length === 1){
-            this._emitEvent(GAME_EVENTS.UPDATE_UI, 'Well done');
-            (this.stage.items[0] as Container).setPos(0,0);
-
-            this.gameStatus = PUZZLE_GAME_STATUS.END;
-        }
-        else if (currentTime >= TIME_GAME ) {
-            this._emitEvent(GAME_EVENTS.UPDATE_UI, 'GAME OVER');
-
-            this.gameStatus = PUZZLE_GAME_STATUS.END;
-        }
-
+        // Render the game
         this.stage.render();
         
-        if(this.gameStatus === PUZZLE_GAME_STATUS.END){
-            this.stage.removeAllItems();
-            
-            this._emitEvent(GAME_EVENTS.END);
-            return;
+        // Only reset status to PLAYING if we haven't ended
+        if (this.gameStatus !== PUZZLE_GAME_STATUS.END) {
+            this.gameStatus = PUZZLE_GAME_STATUS.PLAYING;
         }
 
         requestAnimationFrame(this.onUpdateGame.bind(this));

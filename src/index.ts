@@ -6,9 +6,7 @@ import { VIEWS } from "./const"
 import { IGameSettings } from "./models/gameSettings";
 
 const onInit = async () => {
-
-    console.log("on init");
-
+    
     const mainView:IView = new MainView();
     const gameView:IView = new GameView();
     const generatorView:IView = new GeneratorView();

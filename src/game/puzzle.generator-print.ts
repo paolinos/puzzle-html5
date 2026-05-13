@@ -20,8 +20,6 @@ export default class PuzzleGeneratorPrint extends PuzzleConstructor {
             this.image!, 
             this.inputSettings!.horizontal, 
             this.inputSettings!.vertical
-            //this.stage.width,
-            //this.stage.height
         );
         this.stage.width = result.width;
         this.stage.height = result.height;

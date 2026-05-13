@@ -30,19 +30,29 @@ export class Container extends BoxDragDrop {
      * @param {TouchPosition} touchPos 
      * @returns {boolean} 
      */
-    checkTouchColission(touchPos:TouchPosition) {
+    checkTouchColission(touchPos:TouchPosition): boolean {
         for (const piece of this._pieces) {
+            // Check if click is within the piece's bounding box
+            const pieceLeft = this.x + piece.destination.x;
+            const pieceTop = this.y + piece.destination.y;
+            const pieceRight = pieceLeft + piece.destination.width;
+            const pieceBottom = pieceTop + piece.destination.height;
+            
             if (
-                touchPos.getX() >= (this.x + piece.x) && touchPos.getX() <= (this.x + piece.x + piece.width) &&
-                touchPos.getY() >= (this.y + piece.y) && touchPos.getY() <= (this.y + piece.y + piece.height)
-            ) return true;
+                touchPos.getX() >= pieceLeft && 
+                touchPos.getX() <= pieceRight &&
+                touchPos.getY() >= pieceTop && 
+                touchPos.getY() <= pieceBottom
+            ) {
+                return true;
+            }
         }
         return false;
     }
 
     // TODO: New version
     checkContainerCollision(container:Container):{collision: boolean, data?: any } {
-        if(container.id === this.id) {collision: false};
+        if(container.id === this.id) return { collision: false };
 
         // TODO: move this inside of piece
         const checkBoundingBoxCollisionWithParent = (itemA:PieceRender, itemB:PieceRender) => (

@@ -53,6 +53,7 @@ export class Container extends BoxDragDrop {
     /**
      * Check collision with another container
      * Only pieces with matching tags should collide
+     * Collision is checked at piece level, not container level
      */
     checkContainerCollision(container:Container):{collision: boolean, data?: any } {
         if(container.id === this.id) return { collision: false };
@@ -60,7 +61,10 @@ export class Container extends BoxDragDrop {
         // Check each piece in this container against pieces in other container
         for (const piece of this._pieces) {
             for (const otherPiece of container.pieces) {
-                // Check if bounding boxes overlap
+                // Only check if pieces are from different containers
+                if (piece.parent === container) continue;
+                
+                // Calculate absolute positions for each piece
                 const pieceLeft = this.x + piece.destination.x;
                 const pieceTop = this.y + piece.destination.y;
                 const pieceRight = pieceLeft + piece.destination.width;

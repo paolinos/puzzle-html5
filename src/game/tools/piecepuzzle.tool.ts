@@ -21,21 +21,23 @@ export default class PiecePuzzleTool{
         const imgW = img.width / horizontal;
         const imgH = img.height / vertical;
 
-        // Calculate optimal piece size based on available space
-        // Ensure pieces are visible and not too small
-        const minPieceSize = Math.min(maxWidth, maxHeight) / (horizontal + vertical + 2);
-        const scaledImgW = Math.min(imgW, minPieceSize);
-        const scaledImgH = Math.min(imgH, minPieceSize);
-        
         // Add some padding to make pieces more visible
         const padding = 5;
-        const maxWidth = maxWidth - (padding * 2);
-        const maxHeight = maxHeight - (padding * 2);
+        const adjustedMaxWidth = maxWidth - (padding * 2);
+        const adjustedMaxHeight = maxHeight - (padding * 2);
+
+        // Calculate optimal piece size based on available space
+        // Ensure pieces are visible and not too small
+        const minPieceSize = Math.min(adjustedMaxWidth, adjustedMaxHeight) / (horizontal + vertical + 2);
+        const scaledImgW = Math.min(imgW, minPieceSize);
+        const scaledImgH = Math.min(imgH, minPieceSize);
 
         for (let x = 0; x < horizontal; x++) {
             for (let y = 0; y < vertical; y++) {
-                const imgX = x * scaledImgW;
-                const imgY = y * scaledImgH;
+                const srcX = x * imgW;
+                const srcY = y * imgH;
+                const destX = x * scaledImgW;
+                const destY = y * scaledImgH;
 
                 const name = (x+1) + (horizontal*y);
                 const tags:number[] = [];
@@ -77,18 +79,16 @@ export default class PiecePuzzleTool{
 
                 const container = new Container([
                     new PieceRender(img, 
-                        new ImagePosition(imgX,imgY, scaledImgW, scaledImgH), 
-                        new ImagePosition(imgX,imgY, scaledImgW, scaledImgH),
+                        new ImagePosition(srcX, srcY, imgW, imgH),
+                        new ImagePosition(destX, destY, scaledImgW, scaledImgH),
                         new TagInfo(name, tags, tagCollision)
                     )
                 ]);
 
-                // Set random position within available space
-                const availableWidth = maxWidth - scaledImgW;
-                const availableHeight = maxHeight - scaledImgH;
-                const newX = Math.random() * availableWidth;
-                const newY = Math.random() * availableHeight;
-                container.setPos(newX,newY);
+                // Set random position clustered near center of canvas
+                const newX = Math.floor(maxWidth * 0.2 + Math.random() * (maxWidth * 0.5));
+                const newY = Math.floor(maxHeight * 0.2 + Math.random() * (maxHeight * 0.5));
+                container.setPos(newX, newY);
                 data.push(container);
             }
         }

@@ -87,6 +87,7 @@ export class Container extends BoxDragDrop {
                 if (boxesOverlap) {
                     const result = piece.tagInfo.check(otherPiece.tagInfo);
                     if(result){
+                        const tagData = otherPiece.tagInfo.getTagCollision(result.toString());
                         return {
                             collision: true,
                             data: {
@@ -95,8 +96,8 @@ export class Container extends BoxDragDrop {
                                 },
                                 other: {
                                     piece: otherPiece,
-                                    tag: result,
-                                    side: otherPiece.tagInfo.getTagCollision(result)
+                                    tag: tagData,
+                                    side: tagData
                                 }
                             }
                         }

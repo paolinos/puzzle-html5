@@ -14,8 +14,8 @@ export class TagInfo{
     }
 
     
-    getTagCollision(value:string):TagData{
-        return this.tagCollision[value];
+    getTagCollision(value:string | number):TagData{
+        return this.tagCollision[value.toString()];
     }
 
     removeTag(value:number):void{

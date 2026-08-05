@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/paolinos/puzzle-html5#readme",
   "devDependencies": {
-    "typescript": "^6.0.3",
-    "vite": "^8.0.12"
+    "typescript": "^7.0.2",
+    "vite": "^8.2.0"
   }
 }
